@@ -8,16 +8,21 @@
         Title="MainWindow" Height="450" Width="800">
     <Grid>
         <TabControl>
-            <TabItem Header="TabItem">
+            <TabItem Header="Условия задачи">
                 <Grid Background="#FFE5E5E5">
                     <StackPanel Orientation="Horizontal">
                         <StackPanel Orientation="Vertical">
-                            <DockPanel>
+                            <StackPanel Margin="10">
                                 <Label Content="Число переменных: "/>
                                 <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" Text="4" VerticalAlignment="Top" Width="120"/>
-                            </DockPanel>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical">
+                                <!-- Margin = "LEFT, UP, RIGHT, BOTTOM" -->
+                                <Button Content="Применить" Background="Green" Margin="0,0,0,5"/>
+                                <Button Content="Выход" Background="Red" Margin="0,0,0,5"/>
+                            </StackPanel>
                         </StackPanel>
-                        <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Vertical" Margin="10">
                             <StackPanel Orientation="Vertical">
                                 <Label Content="Целевая функция"/>
                                 <DataGrid x:Name="target_func_grid" Loaded="grid_Loaded"/>

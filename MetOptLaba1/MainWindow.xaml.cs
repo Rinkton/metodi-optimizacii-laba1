@@ -19,7 +19,7 @@ namespace MetOptLaba1
 {
     public partial class MainWindow : Window
     {
-        // В тетрадочке дизайн первого таба. Гит ещё сделай
+        // В тетрадочке дизайн первого таба. Ещё гит пользуй, предохраняйся
         public MainWindow()
         {
             InitializeComponent();
