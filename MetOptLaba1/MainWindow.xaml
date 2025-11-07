@@ -14,7 +14,9 @@
                         <StackPanel Orientation="Vertical">
                             <StackPanel Margin="10">
                                 <Label Content="Число переменных: "/>
-                                <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" Text="4" VerticalAlignment="Top" Width="120"/>
+                                <TextBox x:Name="variableAmount" HorizontalAlignment="Left" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120" TextChanged="variableAmount_TextChanged"/>
+                                <Label Content="Число ограничений: "/>
+                                <TextBox x:Name="constraintAmount" HorizontalAlignment="Left" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120" TextChanged="constraintAmount_TextChanged"/>
                             </StackPanel>
                             <StackPanel Orientation="Vertical">
                                 <!-- Margin = "LEFT, UP, RIGHT, BOTTOM" -->
@@ -25,11 +27,11 @@
                         <StackPanel Orientation="Vertical" Margin="10">
                             <StackPanel Orientation="Vertical">
                                 <Label Content="Целевая функция"/>
-                                <DataGrid x:Name="target_func_grid" Loaded="grid_Loaded"/>
+                                <DataGrid x:Name="targetGrid" CanUserAddRows="False" Loaded="grid_Loaded"/>
                             </StackPanel>
                             <StackPanel Orientation="Vertical">
-                                <Label Content="Целевая функция"/>
-                                <DataGrid x:Name="ter" Loaded="grid_Loaded"/>
+                                <Label Content="Ограничения"/>
+                                <DataGrid x:Name="constraintGrid" CanUserAddRows="False" Loaded="grid_Loaded"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
