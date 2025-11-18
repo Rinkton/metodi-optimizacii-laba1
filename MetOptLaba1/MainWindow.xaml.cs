@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -24,20 +25,6 @@ namespace MetOptLaba1
         public MainWindow()
         {
             InitializeComponent();
-        }
-
-        private void grid_Loaded(object sender, RoutedEventArgs e)
-        {
-        }
-
-        private void variableAmount_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            updateTables();
-        }
-
-        private void constraintAmount_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            updateTables();
         }
 
         private void updateTables()
@@ -98,6 +85,77 @@ namespace MetOptLaba1
 
             constraintGrid.ItemsSource = dt.DefaultView;
             constraintGrid.AutoGenerateColumns = true;
+        }
+
+        private Fraction[,] getFractionContentTable(string[,] stringContentTable)
+        {
+            int rows = stringContentTable.GetLength(0);
+            int cols = stringContentTable.GetLength(1);
+            Fraction[,] fractionContentTable = new Fraction[rows, cols];
+
+            for(int i = 0; i < rows; i++) {
+                for(int j = 0; j < cols; j++) {
+                    fractionContentTable[i, j] = Fraction.FromString(
+                        stringContentTable[i, j]);
+                }
+            }
+            return fractionContentTable;
+        }
+
+        private string[,] getDataGridContentTable(DataGrid dataGrid)
+        {
+            if(dataGrid.Items.Count == 0 || dataGrid.Columns.Count == 0)
+                return new string[0, 0];
+
+            int rowCount = dataGrid.Items.Count;
+            int colCount = dataGrid.Columns.Count;
+            string[,] result = new string[rowCount, colCount];
+
+            for(int i = 0; i < rowCount; i++) {
+                var row = dataGrid.Items[i];
+                for(int j = 0; j < colCount; j++) {
+                    var column = dataGrid.Columns[j];
+                    var cellContent = column.GetCellContent(row);
+
+                    if(cellContent is TextBlock textBlock) {
+                        result[i, j] = textBlock.Text ?? string.Empty;
+                    }
+                    else {
+                        result[i, j] = string.Empty;
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        
+
+        private void grid_Loaded(object sender, RoutedEventArgs e)
+        {
+        }
+
+        private void variableAmount_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            updateTables();
+        }
+
+        private void constraintAmount_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            updateTables();
+        }
+
+        private void apply_Click(object sender, RoutedEventArgs e)
+        {
+            string[,] targetString2DContentTable = getDataGridContentTable(targetGrid);
+            string[,] constraintStringContentTable = getDataGridContentTable(constraintGrid);
+            try {
+                Fraction[,] targetFraction2DContentTable = getFractionContentTable(targetString2DContentTable);
+                Fraction[] targetFractionContentTable = Utils.GetArray2DFirstRow(targetFraction2DContentTable);
+                Fraction[,] constraintFractionContentTable = getFractionContentTable(constraintStringContentTable);
+            } catch (FractionConvertingException exception) {
+                UserError.Show($"Клетка имеющая значение '{exception.value}' не является корректным числом");
+            }
         }
     }
 

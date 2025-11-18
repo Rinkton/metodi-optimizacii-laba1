@@ -20,8 +20,8 @@
                             </StackPanel>
                             <StackPanel Orientation="Vertical">
                                 <!-- Margin = "LEFT, UP, RIGHT, BOTTOM" -->
-                                <Button Content="Применить" Background="Green" Margin="0,0,0,5"/>
-                                <Button Content="Выход" Background="Red" Margin="0,0,0,5"/>
+                                <Button x:Name="apply" Content="Применить" Background="Green" Margin="0,0,0,5" Click="apply_Click"/>
+                                <Button x:Name="exit" Content="Выход" Background="Red" Margin="0,0,0,5"/>
                             </StackPanel>
                         </StackPanel>
                         <StackPanel Orientation="Vertical" Margin="10">
