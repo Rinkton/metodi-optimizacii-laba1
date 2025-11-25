@@ -18,3 +18,7 @@ C:\Users\RINK\source\repos\MetOptLaba1\MetOptLaba1\obj\Debug\net6.0-windows\refi
 C:\Users\RINK\source\repos\MetOptLaba1\MetOptLaba1\obj\Debug\net6.0-windows\MetOptLaba1.pdb
 C:\Users\RINK\source\repos\MetOptLaba1\MetOptLaba1\obj\Debug\net6.0-windows\MetOptLaba1.genruntimeconfig.cache
 C:\Users\RINK\source\repos\MetOptLaba1\MetOptLaba1\obj\Debug\net6.0-windows\ref\MetOptLaba1.dll
+C:\Users\RINK\source\repos\MetOptLaba1\MetOptLaba1\bin\Debug\net6.0-windows\nunit.framework.dll
+C:\Users\RINK\source\repos\MetOptLaba1\MetOptLaba1\bin\Debug\net6.0-windows\nunit.framework.legacy.dll
+C:\Users\RINK\source\repos\MetOptLaba1\MetOptLaba1\obj\Debug\net6.0-windows\MetOptLaba1.csproj.AssemblyReference.cache
+C:\Users\RINK\source\repos\MetOptLaba1\MetOptLaba1\obj\Debug\net6.0-windows\MetOptLaba1.csproj.CopyComplete

@@ -58,9 +58,6 @@ namespace MetOptLaba1
 
         public static bool operator ==(Fraction a, Fraction b)
         {
-            // Так, на всякий случай
-            a.simplify();
-            b.simplify();
             return a.Numerator == b.Numerator && a.Denominator == b.Denominator;
         }
 
@@ -131,7 +128,7 @@ namespace MetOptLaba1
             }
         }
 
-        public static Fraction Zero()
+        public static Fraction GetZero()
         {
             return new Fraction(0, 1);
         }
