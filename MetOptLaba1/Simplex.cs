@@ -178,10 +178,12 @@ namespace MetOptLaba1
         {
             Fraction[,] simplexTableWithoutLastRow = getSimplexTableWithoutLastRow(
                 gaussHandledConstraints, basis);
+            Fraction[,] basisVariablesExpressions = getBasisVariablesExpressions(
+                simplexTableWithoutLastRow);
             Fraction[] lastSimplexTableRow = getLastSimplexTableRow(
-                target, simplexTableWithoutLastRow, basis);
-            Fraction[,] simplexTable = new Fraction[simplexTableWithoutLastRow.GetLength(0), 
-                simplexTableWithoutLastRow.GetLength(1) + 1];
+                target, getBasisVariablesExpressions(simplexTableWithoutLastRow), basis);
+            Fraction[,] simplexTable = new Fraction[simplexTableWithoutLastRow.GetLength(0) + 1, 
+                simplexTableWithoutLastRow.GetLength(1)];
             for (int i = 0; i < simplexTableWithoutLastRow.GetLength(0); i++) {
                 for(int j = 0; j < simplexTableWithoutLastRow.GetLength(1); j++) {
                     simplexTable[i, j] = simplexTableWithoutLastRow[i, j];
@@ -212,6 +214,7 @@ namespace MetOptLaba1
 
                 for(int col = 0; col < cols; col++) {
                     if (removeIndex >= indices.Length) {
+                        result[row, newCol] = matr[row, col];
                         continue;
                     }
                     if(col == indices[removeIndex]) {
@@ -227,10 +230,27 @@ namespace MetOptLaba1
             return result;
         }
 
+        // По сути просто делает все коэффициенты отрицательными(но не константы!)
+        public Fraction[,] getBasisVariablesExpressions(Fraction[,] simplexTableWithoutLastRow)
+        {
+            Fraction[,] basisVariablesExpressions = new Fraction[
+                simplexTableWithoutLastRow.GetLength(0), 
+                simplexTableWithoutLastRow.GetLength(1)];
+            for(int i = 0; i < simplexTableWithoutLastRow.GetLength(0); i++) {
+                for(int j = 0; j < simplexTableWithoutLastRow.GetLength(1); j++) {
+                    basisVariablesExpressions[i, j] = simplexTableWithoutLastRow[i, j];
+                    if (j != simplexTableWithoutLastRow.GetLength(1)-1) {
+                        basisVariablesExpressions[i, j] *= new Fraction(-1, 1);
+                    }
+                }
+            }
+            return basisVariablesExpressions;
+        }
+
         // public чтоб тестить
         public Fraction[] getLastSimplexTableRow(
             Fraction[] target,
-            Fraction[,] simplexTableWithoutLastRow, 
+            Fraction[,] basisVariablesExpressions, 
             int[] basis)
         {
             Fraction[] targetWithoutBasis = getArrayWithoutTheseIndices(target, basis);
@@ -238,9 +258,11 @@ namespace MetOptLaba1
                 int curBasis = basis[i];
                 Fraction mult = target[curBasis];
                 for (int j = 0; j < targetWithoutBasis.Length; j++) {
-                    targetWithoutBasis[j] += simplexTableWithoutLastRow[i, j] * mult;
+                    targetWithoutBasis[j] += basisVariablesExpressions[i, j] * mult;
                 }
             }
+            // Умножаем на -1 константу
+            targetWithoutBasis[^1] *= new Fraction(-1, 1);
             return targetWithoutBasis;
         }
 

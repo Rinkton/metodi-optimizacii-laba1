@@ -121,7 +121,7 @@ namespace Test
             Fraction[] expected = new Fraction[] {
                 new Fraction(-1, 1),
                 new Fraction(16, 1),
-                new Fraction(-19, 1),
+                new Fraction(19, 1),
             };
             Assert.That(actual, Is.EqualTo(expected));
         }

@@ -12,8 +12,6 @@ namespace MetOptLaba1
     {
         public static Fraction[,] GetHandledMatrix(Fraction[,] matr, int[] basis)
         {
-            // TODO: 1/5 in simplex method in some reason and 0/0. Сфотал на телефон
-            // решение теста ручками 02.12
             if(basis.Length != matr.GetLength(0)) {
                 throw new Exception("Количество переменных в базисе не равно количеству ограничений");
             }
@@ -42,7 +40,7 @@ namespace MetOptLaba1
                 }
                 for(int ii = i + 1; ii < n; ii++) {
                     Fraction mult = matr[ii, j] / matr[i, j];
-                    for(int jj = i; jj < m; jj++) {
+                    for(int jj = 0; jj < m; jj++) {
                         matr[ii, jj] -= matr[i, jj] * mult;
                     }
                 }
@@ -62,7 +60,7 @@ namespace MetOptLaba1
                 }
                 for(int ii = i - 1; ii >= 0; ii--) {
                     Fraction mult = matr[ii, j] / matr[i, j];
-                    for(int jj = i; jj < m; jj++) {
+                    for(int jj = 0; jj < m; jj++) {
                         matr[ii, jj] -= matr[i, jj] * mult;
                     }
                 }
