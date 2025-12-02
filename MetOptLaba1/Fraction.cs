@@ -149,6 +149,11 @@ namespace MetOptLaba1
             long gcd = GetGreatestCommonDivisor(Math.Abs(Numerator), Math.Abs(Denominator));
             Numerator = Numerator / gcd;
             Denominator = Denominator / gcd;
+            // Не хотим, чтобы знаменатель был отрицательным
+            if (Denominator < 0) {
+                Numerator *= -1;
+                Denominator *= -1;
+            }
         }
     }
 }

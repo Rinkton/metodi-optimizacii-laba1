@@ -153,6 +153,8 @@ namespace MetOptLaba1
                 Fraction[,] targetFraction2DContentTable = getFractionContentTable(targetString2DContentTable);
                 Fraction[] targetFractionContentTable = Utils.GetArray2DFirstRow(targetFraction2DContentTable);
                 Fraction[,] constraintFractionContentTable = getFractionContentTable(constraintStringContentTable);
+                Simplex simplex = new Simplex();
+                //simplex.FormSimplexTable(targetFractionContentTable, constraintFractionContentTable, new int[] {  });
             } catch (FractionConvertingException exception) {
                 UserError.Show($"Клетка имеющая значение '{exception.value}' не является корректным числом");
             }
