@@ -169,6 +169,7 @@ namespace MetOptLaba1
 
         private void apply_Click(object sender, RoutedEventArgs e)
         {
+            // TODO: Все ли вводные задачи сохраняются?(базис, минимум максимум...)
             simplexGrid.Children.Clear();
             updateStringTables();
             string[,] targetString2DContentTable = getDataGridContentTable(targetGrid);
@@ -178,12 +179,16 @@ namespace MetOptLaba1
                 Fraction[] targetFractionContentTable = Utils.GetArray2DFirstRow(targetFraction2DContentTable);
                 Fraction[,] constraintFractionContentTable = getFractionContentTable(constraintStringContentTable);
                 SimplexTableContentFormer simplexTableContentFormer = new SimplexTableContentFormer();
-                Fraction[] x0 = new Fraction[] { new Fraction(0, 1), new Fraction(1, 1), new Fraction(2, 1) };
+                Fraction[] x0 = new Fraction[] { new Fraction(0, 1), new Fraction(1, 1), new Fraction(1, 1), new Fraction(0, 1) };
                 Fraction[,] simplexTableContent = simplexTableContentFormer.FormSimplexTableContent(
                     targetFractionContentTable, constraintFractionContentTable, x0);
                 SimplexTable simplexTable = new SimplexTable(simplexTableContent, x0, 0);
                 DataGrid dg = simplexTable.DataGrid;
 
+                // TODO: Наверно стоить сделать ввод базиса, причём так, красиво
+                // если заданный, то его можно прям вписать по циферкам а не по чекбоксам,
+                // если искусственный, то
+                // оно исчезнет
                 simplexGrid.Children.Add(dg);
                 if (simplexTable.GetIsItSolved()) {
                     // TODO

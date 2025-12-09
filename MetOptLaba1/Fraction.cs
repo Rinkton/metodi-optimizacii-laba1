@@ -66,6 +66,26 @@ namespace MetOptLaba1
             return !(a == b);
         }
 
+        public static bool operator <(Fraction a, Fraction b)
+        {
+            return (a - b).Numerator < 0;
+        }
+
+        public static bool operator >(Fraction a, Fraction b)
+        {
+            return (a - b).Numerator > 0;
+        }
+
+        public static bool operator <=(Fraction a, Fraction b)
+        {
+            return a < b || a == b;
+        }
+
+        public static bool operator >=(Fraction a, Fraction b)
+        {
+            return a > b || a == b;
+        }
+
         private static long GetGreatestCommonDivisor(long a, long b)
         {
             while(b != 0) {
@@ -135,7 +155,12 @@ namespace MetOptLaba1
         
         public override string ToString()
         {
-            return $"{Numerator}/{Denominator}";
+            if (Denominator != 1) {
+                return $"{Numerator}/{Denominator}";
+            }
+            else {
+                return $"{Numerator}";
+            }
         }
 
         public double ToDouble()

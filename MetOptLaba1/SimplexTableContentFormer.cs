@@ -219,6 +219,7 @@ namespace MetOptLaba1
                 for(int col = 0; col < cols; col++) {
                     if (removeIndex >= indices.Length) {
                         result[row, newCol] = matr[row, col];
+                        newCol++;
                         continue;
                     }
                     if(col == indices[removeIndex]) {
@@ -279,6 +280,7 @@ namespace MetOptLaba1
             for(int i = 0; i < array.Length; i++) {
                 if(removeIndex >= indices.Length) {
                     result[newI] = array[i];
+                    newI++;
                     continue;
                 }
                 if(i == indices[removeIndex]) {

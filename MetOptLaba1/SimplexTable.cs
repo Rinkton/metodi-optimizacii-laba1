@@ -49,8 +49,42 @@ namespace MetOptLaba1
 
         public void PaintCells()
         {
-            Painter.ColorCell(DataGrid, 1, 0, Painter.allowableElementColor);
-            Painter.ColorCell(DataGrid, 0, 0, Painter.bestElementColor);
+            List<int> allowableColumnList = new List<int>();
+            int bestColumn = -1;
+            Fraction bestColumnElem = Fraction.GetZero();
+            for (int i = 0; i < freeVariables.Length; i++) {
+                Fraction fElem = content[basisVariables.Length, i];
+                if (fElem.Numerator < 0) {
+                    allowableColumnList.Add(i);
+                    if (fElem < bestColumnElem) {
+                        bestColumn = i;
+                        bestColumnElem = fElem;
+                    }
+                }
+            }
+            if (bestColumn == -1) {
+                // Вероятно, это решение
+                return;
+            }
+            for (int j = 0; j < allowableColumnList.Count; j++) {
+                int bestRow = -1;
+                Fraction bestDivision = content[0, freeVariables.Length] / content[0, j];
+                for(int i = 0; i < basisVariables.Length; i++) {
+                    Fraction elem = content[i, j];
+                    Fraction bElem = content[i, freeVariables.Length];
+                    Fraction division = bElem / elem;
+                    if (division <= bestDivision) {
+                        bestRow = i;
+                        bestDivision = division;
+                    }
+                }
+                if (bestRow == -1) {
+                    // Вроде и allowable, но нормальных элементов нет. Обида
+                    break;
+                }
+                Painter.ColorCell(DataGrid, bestRow, j, j != bestColumn ? 
+                    Painter.allowableElementColor : Painter.bestElementColor);
+            }
         }
 
         public bool GetIsItSolved()
@@ -99,11 +133,11 @@ namespace MetOptLaba1
             DataTable dt = new DataTable();
 
             for(int i = 0; i < columnCount - 1; i++) {
-                dt.Columns.Add($"x{freeVariables[i]}", typeof(string));
+                dt.Columns.Add($"x{freeVariables[i] + 1}", typeof(string));
             }
             dataGrid.LoadingRow += (sender, e) => {
                 if(e.Row.GetIndex() < basisVariables.Length) {
-                    e.Row.Header = $"x{basisVariables[e.Row.GetIndex()]}";
+                    e.Row.Header = $"x{basisVariables[e.Row.GetIndex()] + 1}";
                 }
                 else {
                     e.Row.Header = $"f";
@@ -115,7 +149,7 @@ namespace MetOptLaba1
             for(int i = 0; i < rowCount; i++) {
                 var row = dt.NewRow();
                 for(int j = 0; j < columnCount - 1; j++) {
-                    row[$"x{freeVariables[j]}"] = content[i, j];
+                    row[$"x{freeVariables[j] + 1}"] = content[i, j];
                 }
                 row[$"b"] = content[i, columnCount - 1];
                 dt.Rows.Add(row);
