@@ -169,6 +169,7 @@ namespace MetOptLaba1
 
         private void apply_Click(object sender, RoutedEventArgs e)
         {
+            simplexGrid.Children.Clear();
             updateStringTables();
             string[,] targetString2DContentTable = getDataGridContentTable(targetGrid);
             string[,] constraintStringContentTable = getDataGridContentTable(constraintGrid);
@@ -180,12 +181,10 @@ namespace MetOptLaba1
                 Fraction[] x0 = new Fraction[] { new Fraction(0, 1), new Fraction(1, 1), new Fraction(2, 1) };
                 Fraction[,] simplexTableContent = simplexTableContentFormer.FormSimplexTableContent(
                     targetFractionContentTable, constraintFractionContentTable, x0);
-                SimplexTable simplexTable = new SimplexTable(simplexTableContent, x0);
-                DataGrid dg = simplexTable.getDataGrid(0);
+                SimplexTable simplexTable = new SimplexTable(simplexTableContent, x0, 0);
+                DataGrid dg = simplexTable.DataGrid;
 
                 simplexGrid.Children.Add(dg);
-                // TODO: need on load of the simplexGrid on signal
-               // Painter.ColorCell(dg, 0, 0, new SolidColorBrush(Color.FromArgb(255, 255, 0, 0)));
                 if (simplexTable.GetIsItSolved()) {
                     // TODO
                 }
@@ -260,6 +259,17 @@ namespace MetOptLaba1
 
             string[,] constraintStringContentTable = getDataGridContentTable(constraintGrid);
             setupObj.constraintStringTable = constraintStringContentTable;
+        }
+
+        private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            TabItem selectedTab = tabControl.SelectedItem as TabItem;
+            if(selectedTab.Header.ToString() == "Симплекс метод") {
+                foreach (DataGrid simplexDataGrid in simplexGrid.Children) {
+                    SimplexTable simplexTable = simplexDataGrid.Tag as SimplexTable;
+                    simplexTable.PaintCells();
+                }
+            }
         }
     }
 

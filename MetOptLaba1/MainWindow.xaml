@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <TabControl>
+        <TabControl x:Name="tabControl" SelectionChanged="TabControl_SelectionChanged">
             <TabItem Header="Условия задачи">
                 <Grid Background="#FFE5E5E5">
                     <StackPanel Orientation="Horizontal">

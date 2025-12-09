@@ -11,41 +11,25 @@ namespace MetOptLaba1
     /// </summary>
     public static class Painter
     {
-        // Method to color a specific cell by row and column index
-        public static void ColorCell(DataGrid dataGrid, int rowIndex, int columnIndex, Brush color)
-        {
-            if(rowIndex >= 0 && rowIndex < dataGrid.Items.Count &&
-                columnIndex >= 0 && columnIndex < dataGrid.Columns.Count) {
-                // Get the row
-                var row = dataGrid.ItemContainerGenerator.ContainerFromIndex(rowIndex) as DataGridRow;
-                if(row != null) {
-                    // Get the cell
-                    var presenter = GetVisualChild<DataGridCellsPresenter>(row);
-                    if(presenter != null) {
-                        var cell = (DataGridCell)presenter.ItemContainerGenerator.ContainerFromIndex(columnIndex);
-                        if(cell != null) {
-                            cell.Background = color;
-                        }
-                    }
-                }
-            }
-        }
+        public static readonly Color allowableElementColor = Color.FromRgb(240, 230, 140);
+        public static readonly Color bestElementColor = Color.FromRgb(255, 215, 0);
 
-        private static T GetVisualChild<T>(DependencyObject parent) where T : Visual
+        public static void ColorCell(DataGrid dataGrid, int rowIndex, int columnIndex, Color color)
         {
-            T child = default(T);
-            int numVisuals = VisualTreeHelper.GetChildrenCount(parent);
-            for(int i = 0; i < numVisuals; i++) {
-                Visual v = (Visual)VisualTreeHelper.GetChild(parent, i);
-                child = v as T;
-                if(child == null) {
-                    child = GetVisualChild<T>(v);
-                }
-                if(child != null) {
-                    break;
+            dataGrid.UpdateLayout(); // Форсируем DataGrid обновиться
+
+            var ro = dataGrid.Items[rowIndex];
+            dataGrid.ScrollIntoView(ro);
+
+            var co = dataGrid.Columns[columnIndex];
+            var cellContent = co.GetCellContent(ro);
+
+            if(cellContent != null) {
+                var cell = cellContent.Parent as DataGridCell;
+                if(cell != null) {
+                    cell.Background = new SolidColorBrush(color);
                 }
             }
-            return child;
         }
     }
 }

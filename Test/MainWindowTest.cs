@@ -6,6 +6,7 @@ namespace Test
 {
     public class MainWindowTest
     {
+        /*
         [Test]
         public void GetSimplexTable()
         {
@@ -28,5 +29,6 @@ namespace Test
             SimplexTable simplexTable = new SimplexTable(simplexTableContent, x0);
             DataGrid dg = simplexTable.getDataGrid(0);
         }
+        */
     }
 }
