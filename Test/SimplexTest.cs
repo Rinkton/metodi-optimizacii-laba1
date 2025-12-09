@@ -10,7 +10,7 @@ namespace Test
         [Test]
         public void FormSimplexTable()
         {
-            Simplex simplex = new Simplex();
+            SimplexTableContentFormer simplex = new SimplexTableContentFormer();
             Fraction[] target = new Fraction[]
             {
                 new Fraction(-2, 1),
@@ -43,7 +43,7 @@ namespace Test
                 new Fraction(1, 1),
                 new Fraction(1, 1),
             };
-            Fraction[,] actual = simplex.FormSimplexTable(target, constraints, x0);
+            Fraction[,] actual = simplex.FormSimplexTableContent(target, constraints, x0);
             Fraction[,] expected =
             {
                 {
@@ -69,7 +69,7 @@ namespace Test
         [Test]
         public void getNonlinearConstraints()
         {
-            Simplex simplex = new Simplex();
+            SimplexTableContentFormer simplex = new SimplexTableContentFormer();
             Fraction[,] constraints =
             {
                 { 
@@ -95,7 +95,7 @@ namespace Test
         [Test]
         public void getLastSimplexTableRow()
         {
-            Simplex simplex = new Simplex();
+            SimplexTableContentFormer simplex = new SimplexTableContentFormer();
             Fraction[] target = new Fraction[]
             {
                 new Fraction(1, 1),

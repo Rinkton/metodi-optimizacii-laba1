@@ -37,8 +37,11 @@
                     </StackPanel>
                 </Grid>
             </TabItem>
-            <TabItem Header="TabItem">
-                <Grid Background="#FFE5E5E5"/>
+            <TabItem Header="Симплекс метод">
+                <Grid Background="#FFE5E5E5">
+                    <StackPanel x:Name = "simplexGrid" Orientation="Vertical" Margin="10">
+                    </StackPanel>
+                </Grid>
             </TabItem>
         </TabControl>
 

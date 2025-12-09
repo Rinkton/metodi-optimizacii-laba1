@@ -8,12 +8,16 @@ using System.Xml.Linq;
 
 namespace MetOptLaba1
 {
-    public class Simplex
+    /// <summary>
+    /// Формирует контент симплекс таблицы из изначальных данных задачи
+    /// (контент это вся симплекс таблица, но без заголовков)
+    /// </summary>
+    public class SimplexTableContentFormer
     {
         // TODO: Если функцию надо максимизировать, тогда всю цел ф надо умножить на -1
         // TODO: При этом это надо сделать перед тем, как составить функцию для
         // метода искусственного базиса, чтобы все x6+x7+x8 -> min были именно положительными
-        public Fraction[,] FormSimplexTable(
+        public Fraction[,] FormSimplexTableContent(
             Fraction[] target, 
             Fraction[,] constraintsThatMightBeLinear, 
             Fraction[] x0
@@ -30,8 +34,8 @@ namespace MetOptLaba1
             }
             int[] basis = x0toBasis(x0);
             Fraction[,] gaussHandledConstraints = SpecialGauss.GetHandledMatrix(nonlinearConstraints, basis);
-            Fraction[,] simplexTable = getSimplexTable(target, gaussHandledConstraints, basis);
-            return simplexTable;
+            Fraction[,] simplexTableContent = getSimplexTable(target, gaussHandledConstraints, basis);
+            return simplexTableContent;
         }
 
         private int[] x0toBasis(Fraction[] x0)

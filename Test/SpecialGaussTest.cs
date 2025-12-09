@@ -7,7 +7,7 @@ namespace Test
         [Test]
         public void GetHandledMatr()
         {
-            Simplex simplex = new Simplex();
+            SimplexTableContentFormer simplex = new SimplexTableContentFormer();
             Fraction[,] matr =
             {
                 {

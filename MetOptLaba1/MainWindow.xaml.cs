@@ -66,11 +66,16 @@ namespace MetOptLaba1
 
         private void updateConstraintTable(int columnCount, int rowCount)
         {
+            constraintGrid.HeadersVisibility = DataGridHeadersVisibility.All;
+
             DataTable dt = new DataTable();
 
             for(int i = 1; i <= columnCount; i++) {
                 dt.Columns.Add($"a{i}", typeof(string));
             }
+            constraintGrid.LoadingRow += (sender, e) => {
+                e.Row.Header = $"f{e.Row.GetIndex() + 1}";
+            };
 
             dt.Columns.Add($"b", typeof(string));
 
@@ -153,8 +158,13 @@ namespace MetOptLaba1
                 Fraction[,] targetFraction2DContentTable = getFractionContentTable(targetString2DContentTable);
                 Fraction[] targetFractionContentTable = Utils.GetArray2DFirstRow(targetFraction2DContentTable);
                 Fraction[,] constraintFractionContentTable = getFractionContentTable(constraintStringContentTable);
-                Simplex simplex = new Simplex();
-                //simplex.FormSimplexTable(targetFractionContentTable, constraintFractionContentTable, new int[] {  });
+                SimplexTableContentFormer simplexTableContentFormer = new SimplexTableContentFormer();
+                Fraction[] x0 = new Fraction[] { new Fraction(0, 1), new Fraction(1, 1), new Fraction(2, 1) };
+                Fraction[,] simplexTableContent = simplexTableContentFormer.FormSimplexTableContent(
+                    targetFractionContentTable, constraintFractionContentTable, x0);
+                SimplexTable simplexTable = new SimplexTable(simplexTableContent, x0);
+                DataGrid dg = simplexTable.getDataGrid(0);
+                simplexGrid.Children.Add(dg);
             } catch (FractionConvertingException exception) {
                 UserError.Show($"Клетка имеющая значение '{exception.value}' не является корректным числом");
             }
