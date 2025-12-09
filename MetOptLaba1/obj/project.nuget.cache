@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "mzzgGBO2ppfaRbTgt7a1nZEkEaNp/gEX1VrAzZVhmrBBTTKkLo0xxyaCFPA0Zn/H9PEt0X5SpIt3uGLHPuklnQ==",
+  "dgSpecHash": "scGRmycKLevWM5HVIxPqvKfveZv/ywEe8EZYOA8H1l+Y7x7UPTi3lVGGG78L1pisUq+B7tjvI8s9dsVeZoJGaQ==",
   "success": true,
   "projectFilePath": "C:\\Users\\RINK\\source\\repos\\MetOptLaba1\\MetOptLaba1\\MetOptLaba1.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\RINK\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512",
     "C:\\Users\\RINK\\.nuget\\packages\\nunit\\4.4.0\\nunit.4.4.0.nupkg.sha512"
   ],
   "logs": []

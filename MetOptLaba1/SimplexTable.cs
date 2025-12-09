@@ -88,5 +88,32 @@ namespace MetOptLaba1
 
             return dataGrid;
         }
+
+        public bool GetIsItSolved()
+        {
+            for (int i = 0; i < content.GetLength(1); i++) {
+                if (content[content.GetLength(0)-1, i].Numerator < 0) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public bool GetIsItUnbounded()
+        {
+            for(int i = 0; i < content.GetLength(1); i++) {
+                if(content[content.GetLength(0) - 1, i].Numerator < 0) {
+                    bool allLessOrEqualZero = true;
+                    for (int j = content.GetLength(0)-1; j >= 0; j--) {
+                        if (content[j, i].Numerator > 0) {
+                            allLessOrEqualZero = false;
+                            break;
+                        }
+                    }
+                    return allLessOrEqualZero;
+                }
+            }
+            return false;
+        }
     }
 }

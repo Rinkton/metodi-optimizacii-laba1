@@ -1,8 +1,11 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
 using System.Data.Common;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -21,6 +24,15 @@ namespace MetOptLaba1
 {
     public partial class MainWindow : Window
     {
+        private SetupObj setupObj = new SetupObj();
+
+        /// <summary>
+        /// Чтобы не обновлялась таблица, пока мы меняем значения текстбоксов, ибо
+        /// это может привести к изменению setupObj, что приведёт к некорректной
+        /// работе программы
+        /// </summary>
+        private bool applyingLoadedSetupObj = false;
+
         // В тетрадочке дизайн первого таба. Ещё гит пользуй, предохраняйся
         public MainWindow()
         {
@@ -29,12 +41,18 @@ namespace MetOptLaba1
 
         private void updateTables()
         {
+            if (applyingLoadedSetupObj) {
+                return;
+            }
             if(targetGrid == null) {
                 return;
             }
             try {
-                int columnCount = int.Parse(variableAmount.Text);
-                int rowCount = int.Parse(constraintAmount.Text);
+                setupObj.variableAmount = int.Parse(variableAmount.Text);
+                setupObj.constraintAmount = int.Parse(constraintAmount.Text);
+                setupObj.UpdateTables();
+                int columnCount = setupObj.variableAmount;
+                int rowCount = setupObj.constraintAmount;
                 updateTargetTable(columnCount);
                 updateConstraintTable(columnCount, rowCount);
             }
@@ -54,10 +72,10 @@ namespace MetOptLaba1
             dt.Columns.Add($"c", typeof(string));
 
             var row = dt.NewRow();
-            for(int i = 1; i <= columnCount; i++) {
-                row[$"c{i}"] = "";
+            for(int i = 0; i < columnCount; i++) {
+                row[$"c{i+1}"] = setupObj.targetStringTable[i];
             }
-            row[$"c"] = "";
+            row[$"c"] = setupObj.targetStringTable[setupObj.targetStringTable.Length - 1];
             dt.Rows.Add(row);
 
             targetGrid.ItemsSource = dt.DefaultView;
@@ -79,12 +97,13 @@ namespace MetOptLaba1
 
             dt.Columns.Add($"b", typeof(string));
 
-            for(int j = 1; j <= rowCount; j++) {
+            for(int j = 0; j < rowCount; j++) {
                 var row = dt.NewRow();
-                for(int i = 1; i <= columnCount; i++) {
-                    row[$"a{i}"] = "";
+                for(int i = 0; i < columnCount; i++) {
+                    row[$"a{i+1}"] = setupObj.constraintStringTable[j, i];
                 }
-                row[$"b"] = "";
+                row[$"b"] = setupObj.constraintStringTable[j, 
+                    setupObj.constraintStringTable.GetLength(1) - 1];
                 dt.Rows.Add(row);
             }
 
@@ -134,8 +153,6 @@ namespace MetOptLaba1
             return result;
         }
 
-        
-
         private void grid_Loaded(object sender, RoutedEventArgs e)
         {
         }
@@ -152,6 +169,7 @@ namespace MetOptLaba1
 
         private void apply_Click(object sender, RoutedEventArgs e)
         {
+            updateStringTables();
             string[,] targetString2DContentTable = getDataGridContentTable(targetGrid);
             string[,] constraintStringContentTable = getDataGridContentTable(constraintGrid);
             try {
@@ -164,10 +182,84 @@ namespace MetOptLaba1
                     targetFractionContentTable, constraintFractionContentTable, x0);
                 SimplexTable simplexTable = new SimplexTable(simplexTableContent, x0);
                 DataGrid dg = simplexTable.getDataGrid(0);
+
                 simplexGrid.Children.Add(dg);
+                // TODO: need on load of the simplexGrid on signal
+               // Painter.ColorCell(dg, 0, 0, new SolidColorBrush(Color.FromArgb(255, 255, 0, 0)));
+                if (simplexTable.GetIsItSolved()) {
+                    // TODO
+                }
             } catch (FractionConvertingException exception) {
                 UserError.Show($"Клетка имеющая значение '{exception.value}' не является корректным числом");
             }
+        }
+
+        private void save_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+
+            saveFileDialog.Title = "Сохранить файл как";
+            saveFileDialog.Filter = "Json files (*.json)|*.json|All files (*.*)|*.*";
+            saveFileDialog.FilterIndex = 1;
+            saveFileDialog.DefaultExt = ".json";
+            // TODO: change to Desktop, not MyPictures
+            saveFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+
+            saveFileDialog.FileName = "a.json";
+
+            if(saveFileDialog.ShowDialog() == true) {
+                updateStringTables();
+                string jsonString = JsonConvert.SerializeObject(setupObj);
+                File.WriteAllText(saveFileDialog.FileName, jsonString);
+            }
+        }
+
+        private void load_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+
+            openFileDialog.Title = "Выберите файл, который хотите открыть";
+            openFileDialog.Filter = "Json files (*.json)|*.json|All files (*.*)|*.*";
+            openFileDialog.FilterIndex = 1;
+            // TODO: change to Desktop, not MyPictures
+            openFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+
+            if(openFileDialog.ShowDialog() == true) {
+                try {
+                    var loadedJson = File.ReadAllText(openFileDialog.FileName);
+                    setupObj = JsonConvert.DeserializeObject<SetupObj>(loadedJson);
+                    applyLoadedSetupObj();
+                    updateTables();
+                }
+                catch(Exception ex) {
+                    MessageBox.Show($"Ошибка загрузки файла: {ex.Message}", "Ошибка",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void applyLoadedSetupObj()
+        {
+            applyingLoadedSetupObj = true;
+
+            variableAmount.Text = setupObj.variableAmount.ToString();
+            constraintAmount.Text = setupObj.constraintAmount.ToString();
+
+            applyingLoadedSetupObj = false;
+        }
+
+        private void exit_Click(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
+
+        private void updateStringTables()
+        {
+            string[,] targetString2DContentTable = getDataGridContentTable(targetGrid);
+            setupObj.targetStringTable = Utils.GetArray2DFirstRow(targetString2DContentTable);
+
+            string[,] constraintStringContentTable = getDataGridContentTable(constraintGrid);
+            setupObj.constraintStringTable = constraintStringContentTable;
         }
     }
 
