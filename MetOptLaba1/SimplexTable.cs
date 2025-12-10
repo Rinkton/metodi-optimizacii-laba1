@@ -114,6 +114,56 @@ namespace MetOptLaba1
             return false;
         }
 
+        // По сути возвращает результат шага симплекс-метода
+        public SimplexTable getNextSimplexTable(int chosenRow, int chosenColumn)
+        {
+            Fraction[,] nextContent = getNextContent(chosenRow, chosenColumn);
+
+            int[] nextFreeVariables;
+            int[] nextBasisVariables;
+
+            int freeVariableToReplace = freeVariables[chosenColumn];
+            int basisVariableToReplace = basisVariables[chosenColumn];
+
+            // Создаём копии массивов, не просто ссылаемся
+            nextFreeVariables = freeVariables.ToArray();
+            nextBasisVariables = basisVariables.ToArray();
+
+            nextFreeVariables[chosenColumn] = basisVariableToReplace;
+            nextBasisVariables[chosenRow] = freeVariableToReplace;
+
+            throw new NotImplementedException();
+        }
+
+        private Fraction[,] getNextContent(int chosenRow, int chosenColumn)
+        {
+            Fraction[,] nextContent = new Fraction[content.GetLength(0),content.GetLength(1)];
+
+            nextContent[chosenRow, chosenColumn] = 
+                new Fraction(1, 1) / content[chosenRow, chosenColumn];
+
+            for (int j = 0; j < nextContent.GetLength(1); j++) {
+                if (j == chosenColumn) {
+                    continue;
+                }
+                nextContent[chosenRow, j] = 
+                    content[chosenRow, j] / content[chosenRow, chosenColumn];
+            }
+
+            for(int i = 0; i < nextContent.GetLength(0); i++) {
+                if(i == chosenRow) {
+                    continue;
+                }
+                Fraction minusChosenElement =
+                    Fraction.GetZero() - content[chosenRow, chosenColumn];
+                nextContent[i, chosenColumn] =
+                    content[i, chosenColumn] / minusChosenElement;
+            }
+            // И терь 5-ый пункт
+
+            throw new NotImplementedException();
+        }
+
         private DataGrid getDataGrid(int idx)
         {
             // Создаём DataGrid
