@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
@@ -14,10 +16,15 @@ namespace MetOptLaba1
     public class SimplexTable
     {
         public readonly DataGrid DataGrid;
+        public delegate void NextSimplexTableHandler(SimplexTable nextSimplexTable);
+        public event NextSimplexTableHandler MadeNewSimplexTable;
 
         private Fraction[,] content;
         private int[] freeVariables;
         private int[] basisVariables;
+        private int idx;
+
+        private List<AllowableElementData> allowableElementDatas = new List<AllowableElementData>();
 
         // Обычно вызывается после первого шага
         public SimplexTable(Fraction[,] content, int[] freeVariables, int[] basisVariables, int idx)
@@ -25,6 +32,7 @@ namespace MetOptLaba1
             this.content = content;
             this.freeVariables = freeVariables;
             this.basisVariables = basisVariables;
+            this.idx = idx;
             DataGrid = getDataGrid(idx);
         }
 
@@ -44,47 +52,75 @@ namespace MetOptLaba1
             }
             freeVariables = freeVariablesList.ToArray();
             basisVariables = basisVariablesList.ToArray();
+            this.idx = idx;
             DataGrid = getDataGrid(idx);
         }
 
         public void PaintCells()
         {
-            List<int> allowableColumnList = new List<int>();
-            int bestColumn = -1;
-            Fraction bestColumnElem = Fraction.GetZero();
-            for (int i = 0; i < freeVariables.Length; i++) {
-                Fraction fElem = content[basisVariables.Length, i];
-                if (fElem.Numerator < 0) {
-                    allowableColumnList.Add(i);
-                    if (fElem < bestColumnElem) {
-                        bestColumn = i;
-                        bestColumnElem = fElem;
-                    }
-                }
-            }
-            if (bestColumn == -1) {
-                // Вероятно, это решение
-                return;
-            }
+            var(allowableColumnList, bestColumns) = getAllowableColumnListAndBestColumns();
+            
+            // Вероятно, это решение
+            if(allowableColumnList.Count == 0) return;
+
             for (int j = 0; j < allowableColumnList.Count; j++) {
-                int bestRow = -1;
-                Fraction bestDivision = content[0, freeVariables.Length] / content[0, j];
-                for(int i = 0; i < basisVariables.Length; i++) {
+                // allowableRows не существует, там ток лучшие есчо
+                List<int> bestRows = new List<int>();
+                Fraction bestDivision = Fraction.GetZero();
+                for (int i = 0; i < basisVariables.Length; i++) {
                     Fraction elem = content[i, j];
+                    if(elem.Numerator < 0) {
+                        continue;
+                    }
                     Fraction bElem = content[i, freeVariables.Length];
                     Fraction division = bElem / elem;
-                    if (division <= bestDivision) {
-                        bestRow = i;
+                    if(bestRows.Count == 0 || division < bestDivision) {
+                        bestRows = new List<int> { i };
                         bestDivision = division;
                     }
+                    else if(division == bestDivision) {
+                        bestRows.Add(i);
+                    }
                 }
-                if (bestRow == -1) {
-                    // Вроде и allowable, но нормальных элементов нет. Обида
-                    break;
+                
+                // Вроде бы и хороший столбец, но нормальных в нём элементов нет. Обида
+                if(bestRows.Count == 0) {  break; }
+
+                for (int i = 0; i < bestRows.Count; i++) {
+                    var row = bestRows[i];
+                    AllowableElementData allowableElementData = new AllowableElementData(
+                    row, j, bestColumns.Contains(j));
+                    allowableElementDatas.Add(allowableElementData);
+                    Painter.ColorCell(DataGrid,
+                        allowableElementData.row,
+                        allowableElementData.column,
+                        allowableElementData.best ?
+                        Painter.bestElementColor : Painter.allowableElementColor
+                        );
                 }
-                Painter.ColorCell(DataGrid, bestRow, j, j != bestColumn ? 
-                    Painter.allowableElementColor : Painter.bestElementColor);
             }
+        }
+
+        public (List<int> allowableColumnList, List<int> bestColumns) 
+            getAllowableColumnListAndBestColumns()
+        {
+            List<int> allowableColumnList = new List<int>();
+            List<int> bestColumns = new List<int>();
+            Fraction bestColumnValue = Fraction.GetZero();
+            for(int i = 0; i < freeVariables.Length; i++) {
+                Fraction fElem = content[basisVariables.Length, i];
+                if(fElem.Numerator < 0) {
+                    allowableColumnList.Add(i);
+                    if (bestColumns.Count == 0 || fElem < bestColumnValue) {
+                        bestColumns = new List<int>{ i };
+                        bestColumnValue = fElem;
+                    }
+                    else if (fElem == bestColumnValue) {
+                        bestColumns.Add(i);
+                    }
+                }
+            }
+            return (allowableColumnList, bestColumns);
         }
 
         public bool GetIsItSolved()
@@ -132,7 +168,7 @@ namespace MetOptLaba1
             nextFreeVariables[chosenColumn] = basisVariableToReplace;
             nextBasisVariables[chosenRow] = freeVariableToReplace;
 
-            throw new NotImplementedException();
+            return new SimplexTable(nextContent, nextFreeVariables, nextBasisVariables, idx+1);
         }
 
         private Fraction[,] getNextContent(int chosenRow, int chosenColumn)
@@ -159,9 +195,18 @@ namespace MetOptLaba1
                 nextContent[i, chosenColumn] =
                     content[i, chosenColumn] / minusChosenElement;
             }
-            // И терь 5-ый пункт
 
-            throw new NotImplementedException();
+            for(int i = 0; i < nextContent.GetLength(0); i++) {
+                for(int j = 0; j < nextContent.GetLength(1); j++) {
+                    if(i == chosenRow || j == chosenColumn) {
+                        continue;
+                    }
+                    nextContent[i, j] = content[i, j] - 
+                        content[i, chosenColumn] * nextContent[chosenRow, j];
+                }
+            }
+
+            return nextContent;
         }
 
         private DataGrid getDataGrid(int idx)
@@ -194,6 +239,8 @@ namespace MetOptLaba1
                 }
             };
 
+            dataGrid.MouseDoubleClick += dataGrid_MouseDoubleClick;
+
             dt.Columns.Add($"b", typeof(string));
 
             for(int i = 0; i < rowCount; i++) {
@@ -213,6 +260,64 @@ namespace MetOptLaba1
             dataGrid.Tag = this;
 
             return dataGrid;
+        }
+
+        private void dataGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            DependencyObject dep = (DependencyObject)e.OriginalSource;
+            DataGridCell cell = null;
+            DataGridRow cellRow = null;
+
+            // Ищем в DependencyObject нужные объектики
+            while(dep != null && (cell == null || cellRow == null)) {
+                if (dep is DataGridCell) {
+                    cell = dep as DataGridCell;
+                }
+                if(dep is DataGridRow) {
+                    cellRow = dep as DataGridRow;
+                }
+                dep = VisualTreeHelper.GetParent(dep);
+            }
+
+            if (cell == null || cellRow == null) {
+                return;
+            }
+
+            var (row, column) = getCellIndices(cell, cellRow);
+
+            if (isThisElementIsAllowable(row, column)) {
+                SimplexTable nextSimplexTable = getNextSimplexTable(row, column);
+                MadeNewSimplexTable(nextSimplexTable);
+            }
+        }
+
+        private (int row, int column) getCellIndices(DataGridCell cell, DataGridRow cellRow)
+        {
+            int row = -1;
+            int column = -1;
+
+            if(DataGrid != null) {
+                if(cellRow != null) {
+                    row = DataGrid.ItemContainerGenerator.IndexFromContainer(cellRow);
+                }
+                if(cell.Column != null) {
+                    column = DataGrid.Columns.IndexOf(cell.Column);
+                }
+            }
+
+            return (row, column);
+        }
+
+        private bool isThisElementIsAllowable(int row, int column)
+        {
+            for (int i = 0; i < allowableElementDatas.Count; i++) {
+                if (allowableElementDatas[i].row == row && 
+                    allowableElementDatas[i].column == column) 
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

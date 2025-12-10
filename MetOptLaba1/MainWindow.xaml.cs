@@ -34,6 +34,10 @@ namespace MetOptLaba1
         private bool applyingLoadedSetupObj = false;
 
         // В тетрадочке дизайн первого таба. Ещё гит пользуй, предохраняйся
+
+        // TODO: проверь несколько лучших элементов в столбце, всё ли норм будет
+        // TODO: Проверь ещё, где одинаково низкие коэффициенты в f
+        // TODO: Будет ли предлагать элементы разрешающие если unbounded?
         public MainWindow()
         {
             InitializeComponent();
@@ -183,19 +187,26 @@ namespace MetOptLaba1
                 Fraction[,] simplexTableContent = simplexTableContentFormer.FormSimplexTableContent(
                     targetFractionContentTable, constraintFractionContentTable, x0);
                 SimplexTable simplexTable = new SimplexTable(simplexTableContent, x0, 0);
-                DataGrid dg = simplexTable.DataGrid;
-
+                simplexTable_MadeNewSimplexTable(simplexTable);
                 // TODO: Наверно стоить сделать ввод базиса, причём так, красиво
                 // если заданный, то его можно прям вписать по циферкам а не по чекбоксам,
                 // если искусственный, то
                 // оно исчезнет
-                simplexGrid.Children.Add(dg);
-                if (simplexTable.GetIsItSolved()) {
-                    // TODO
-                }
+
             } catch (FractionConvertingException exception) {
                 UserError.Show($"Клетка имеющая значение '{exception.value}' не является корректным числом");
             }
+        }
+
+        private void simplexTable_MadeNewSimplexTable(SimplexTable simplexTable)
+        {
+            simplexTable.MadeNewSimplexTable += simplexTable_MadeNewSimplexTable;
+            DataGrid dg = simplexTable.DataGrid;
+            simplexGrid.Children.Add(dg);
+            if(simplexTable.GetIsItSolved()) {
+                // TODO
+            }
+            // GetIsItUnbounded
         }
 
         private void save_Click(object sender, RoutedEventArgs e)
