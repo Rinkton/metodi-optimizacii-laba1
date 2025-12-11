@@ -24,11 +24,9 @@ namespace MetOptLaba1
 {
     public partial class MainWindow : Window
     {
-        private SetupObj setupObj = new SetupObj();
-
         /// <summary>
         /// Чтобы не обновлялась таблица, пока мы меняем значения текстбоксов, ибо
-        /// это может привести к изменению setupObj, что приведёт к некорректной
+        /// это может привести к изменению SetupObj.GetInstance(), что приведёт к некорректной
         /// работе программы
         /// </summary>
         private bool applyingLoadedSetupObj = false;
@@ -52,11 +50,11 @@ namespace MetOptLaba1
                 return;
             }
             try {
-                setupObj.variableAmount = int.Parse(variableAmount.Text);
-                setupObj.constraintAmount = int.Parse(constraintAmount.Text);
-                setupObj.UpdateTables();
-                int columnCount = setupObj.variableAmount;
-                int rowCount = setupObj.constraintAmount;
+                SetupObj.GetInstance().variableAmount = int.Parse(variableAmount.Text);
+                SetupObj.GetInstance().constraintAmount = int.Parse(constraintAmount.Text);
+                SetupObj.GetInstance().UpdateTables();
+                int columnCount = SetupObj.GetInstance().variableAmount;
+                int rowCount = SetupObj.GetInstance().constraintAmount;
                 updateTargetTable(columnCount);
                 updateConstraintTable(columnCount, rowCount);
             }
@@ -77,9 +75,9 @@ namespace MetOptLaba1
 
             var row = dt.NewRow();
             for(int i = 0; i < columnCount; i++) {
-                row[$"c{i+1}"] = setupObj.targetStringTable[i];
+                row[$"c{i+1}"] = SetupObj.GetInstance().targetStringTable[i];
             }
-            row[$"c"] = setupObj.targetStringTable[setupObj.targetStringTable.Length - 1];
+            row[$"c"] = SetupObj.GetInstance().targetStringTable[SetupObj.GetInstance().targetStringTable.Length - 1];
             dt.Rows.Add(row);
 
             targetGrid.ItemsSource = dt.DefaultView;
@@ -104,10 +102,10 @@ namespace MetOptLaba1
             for(int j = 0; j < rowCount; j++) {
                 var row = dt.NewRow();
                 for(int i = 0; i < columnCount; i++) {
-                    row[$"a{i+1}"] = setupObj.constraintStringTable[j, i];
+                    row[$"a{i+1}"] = SetupObj.GetInstance().constraintStringTable[j, i];
                 }
-                row[$"b"] = setupObj.constraintStringTable[j, 
-                    setupObj.constraintStringTable.GetLength(1) - 1];
+                row[$"b"] = SetupObj.GetInstance().constraintStringTable[j, 
+                    SetupObj.GetInstance().constraintStringTable.GetLength(1) - 1];
                 dt.Rows.Add(row);
             }
 
@@ -235,7 +233,7 @@ namespace MetOptLaba1
 
             if(saveFileDialog.ShowDialog() == true) {
                 updateStringTables();
-                string jsonString = JsonConvert.SerializeObject(setupObj);
+                string jsonString = JsonConvert.SerializeObject(SetupObj.GetInstance());
                 File.WriteAllText(saveFileDialog.FileName, jsonString);
             }
         }
@@ -253,7 +251,7 @@ namespace MetOptLaba1
             if(openFileDialog.ShowDialog() == true) {
                 try {
                     var loadedJson = File.ReadAllText(openFileDialog.FileName);
-                    setupObj = JsonConvert.DeserializeObject<SetupObj>(loadedJson);
+                    SetupObj.SetInstance(JsonConvert.DeserializeObject<SetupObj>(loadedJson));
                     applyLoadedSetupObj();
                     updateTables();
                 }
@@ -268,9 +266,9 @@ namespace MetOptLaba1
         {
             applyingLoadedSetupObj = true;
 
-            variableAmount.Text = setupObj.variableAmount.ToString();
-            constraintAmount.Text = setupObj.constraintAmount.ToString();
-            optimizationProblemComboBox.SelectedIndex = setupObj.optimizationProblem;
+            variableAmount.Text = SetupObj.GetInstance().variableAmount.ToString();
+            constraintAmount.Text = SetupObj.GetInstance().constraintAmount.ToString();
+            optimizationProblemComboBox.SelectedIndex = SetupObj.GetInstance().optimizationProblem;
 
             applyingLoadedSetupObj = false;
         }
@@ -283,10 +281,10 @@ namespace MetOptLaba1
         private void updateStringTables()
         {
             string[,] targetString2DContentTable = getDataGridContentTable(targetGrid);
-            setupObj.targetStringTable = Utils.GetArray2DFirstRow(targetString2DContentTable);
+            SetupObj.GetInstance().targetStringTable = Utils.GetArray2DFirstRow(targetString2DContentTable);
 
             string[,] constraintStringContentTable = getDataGridContentTable(constraintGrid);
-            setupObj.constraintStringTable = constraintStringContentTable;
+            SetupObj.GetInstance().constraintStringTable = constraintStringContentTable;
         }
 
         private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -305,7 +303,7 @@ namespace MetOptLaba1
 
         private void optimizationProblemComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            setupObj.optimizationProblem = optimizationProblemComboBox.SelectedIndex;
+            SetupObj.GetInstance().optimizationProblem = optimizationProblemComboBox.SelectedIndex;
         }
     }
 

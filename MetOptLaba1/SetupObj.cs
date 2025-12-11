@@ -3,6 +3,7 @@
 namespace MetOptLaba1
 {
     // Он сериализуется и десериализуется при сохранений/загрузке файла
+    // И да, это пресловутый синглтон
     public class SetupObj
     {
         public int variableAmount;
@@ -10,6 +11,22 @@ namespace MetOptLaba1
         public string[] targetStringTable = new string[1];
         public string[,] constraintStringTable = new string[1, 1];
         public int optimizationProblem = 0;
+
+        private static SetupObj instance;
+
+        private SetupObj() { }
+
+        public static SetupObj GetInstance()
+        {
+            if(instance == null)
+                instance = new SetupObj();
+            return instance;
+        }
+
+        public static void SetInstance(SetupObj inst)
+        {
+            instance = inst;
+        }
 
         public void UpdateTables()
         {
