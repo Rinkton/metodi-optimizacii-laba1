@@ -9,6 +9,7 @@ namespace MetOptLaba1
         public int constraintAmount;
         public string[] targetStringTable = new string[1];
         public string[,] constraintStringTable = new string[1, 1];
+        public int optimizationProblem = 0;
 
         public void UpdateTables()
         {

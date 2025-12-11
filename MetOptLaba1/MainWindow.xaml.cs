@@ -181,6 +181,10 @@ namespace MetOptLaba1
             try {
                 Fraction[,] targetFraction2DContentTable = getFractionContentTable(targetString2DContentTable);
                 Fraction[] targetFractionContentTable = Utils.GetArray2DFirstRow(targetFraction2DContentTable);
+                // Если задача на максимизацию
+                if (optimizationProblemComboBox.SelectedIndex == 1) {
+                    multiplyByMinusOne(targetFractionContentTable);
+                }
                 Fraction[,] constraintFractionContentTable = getFractionContentTable(constraintStringContentTable);
                 SimplexTableContentFormer simplexTableContentFormer = new SimplexTableContentFormer();
                 Fraction[] x0 = new Fraction[] { new Fraction(0, 1), new Fraction(1, 1), new Fraction(1, 1), new Fraction(0, 1) };
@@ -195,6 +199,13 @@ namespace MetOptLaba1
 
             } catch (FractionConvertingException exception) {
                 UserError.Show($"Клетка имеющая значение '{exception.value}' не является корректным числом");
+            }
+        }
+
+        private void multiplyByMinusOne(Fraction[] targetFractionContentTable)
+        {
+            for (int i = 0; i < targetFractionContentTable.Length; i++) {
+                targetFractionContentTable[i].Numerator *= -1;
             }
         }
 
@@ -259,6 +270,7 @@ namespace MetOptLaba1
 
             variableAmount.Text = setupObj.variableAmount.ToString();
             constraintAmount.Text = setupObj.constraintAmount.ToString();
+            optimizationProblemComboBox.SelectedIndex = setupObj.optimizationProblem;
 
             applyingLoadedSetupObj = false;
         }
@@ -280,12 +292,20 @@ namespace MetOptLaba1
         private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             TabItem selectedTab = tabControl.SelectedItem as TabItem;
+            if (selectedTab == null) {
+                return;
+            }
             if(selectedTab.Header.ToString() == "Симплекс метод") {
                 foreach (DataGrid simplexDataGrid in simplexGrid.Children) {
                     SimplexTable simplexTable = simplexDataGrid.Tag as SimplexTable;
                     simplexTable.PaintCells();
                 }
             }
+        }
+
+        private void optimizationProblemComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            setupObj.optimizationProblem = optimizationProblemComboBox.SelectedIndex;
         }
     }
 

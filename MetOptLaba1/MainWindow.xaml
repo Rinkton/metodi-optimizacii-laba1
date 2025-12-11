@@ -17,6 +17,11 @@
                                 <TextBox x:Name="variableAmount" HorizontalAlignment="Left" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120" TextChanged="variableAmount_TextChanged"/>
                                 <Label Content="Число ограничений: "/>
                                 <TextBox x:Name="constraintAmount" HorizontalAlignment="Left" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120" TextChanged="constraintAmount_TextChanged"/>
+                                <Label Content="Задача оптимизаций: "/>
+                                <ComboBox x:Name="optimizationProblemComboBox" SelectedIndex="0" SelectionChanged="optimizationProblemComboBox_SelectionChanged">
+                                    <ComboBoxItem Content="Минимизировать" />
+                                    <ComboBoxItem Content="Максимизировать" />
+                                </ComboBox>
                             </StackPanel>
                             <StackPanel Orientation="Vertical">
                                 <!-- Margin = "LEFT, UP, RIGHT, BOTTOM" -->
