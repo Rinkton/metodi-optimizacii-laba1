@@ -22,6 +22,11 @@
                                     <ComboBoxItem Content="Минимизировать" />
                                     <ComboBoxItem Content="Максимизировать" />
                                 </ComboBox>
+                                <Label Content="Вид дробей: "/>
+                                <ComboBox x:Name="fractionTypeComboBox" SelectedIndex="0" SelectionChanged="fractionTypeComboBox_SelectionChanged">
+                                    <ComboBoxItem Content="Обыкновенные" />
+                                    <ComboBoxItem Content="Десятичные" />
+                                </ComboBox>
                             </StackPanel>
                             <StackPanel Orientation="Vertical">
                                 <!-- Margin = "LEFT, UP, RIGHT, BOTTOM" -->

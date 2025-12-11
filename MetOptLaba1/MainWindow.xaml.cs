@@ -269,6 +269,7 @@ namespace MetOptLaba1
             variableAmount.Text = SetupObj.GetInstance().variableAmount.ToString();
             constraintAmount.Text = SetupObj.GetInstance().constraintAmount.ToString();
             optimizationProblemComboBox.SelectedIndex = SetupObj.GetInstance().optimizationProblem;
+            fractionTypeComboBox.SelectedIndex = SetupObj.GetInstance().fractionType;
 
             applyingLoadedSetupObj = false;
         }
@@ -304,6 +305,11 @@ namespace MetOptLaba1
         private void optimizationProblemComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             SetupObj.GetInstance().optimizationProblem = optimizationProblemComboBox.SelectedIndex;
+        }
+
+        private void fractionTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            SetupObj.GetInstance().fractionType = fractionTypeComboBox.SelectedIndex;
         }
     }
 

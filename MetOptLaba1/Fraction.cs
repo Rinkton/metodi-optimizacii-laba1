@@ -155,12 +155,31 @@ namespace MetOptLaba1
         
         public override string ToString()
         {
-            if (Denominator != 1) {
+            switch (SetupObj.GetInstance().fractionType) {
+                case 0:
+                    return getCommonFractionString();
+                case 1:
+                    return getDecimalFractionString();
+                default:
+                    throw new UserException("По какой-то причине обработчик для " +
+                        "выбранного вами вида дробей не найден. " +
+                        "Попробуйте выбрать другой вид дробей");
+            }
+        }
+
+        private string getCommonFractionString()
+        {
+            if(Denominator != 1) {
                 return $"{Numerator}/{Denominator}";
             }
             else {
                 return $"{Numerator}";
             }
+        }
+
+        private string getDecimalFractionString()
+        {
+            return ((double)Numerator / (double)Denominator).ToString();
         }
 
         public double ToDouble()

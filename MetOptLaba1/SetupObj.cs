@@ -11,6 +11,7 @@ namespace MetOptLaba1
         public string[] targetStringTable = new string[1];
         public string[,] constraintStringTable = new string[1, 1];
         public int optimizationProblem = 0;
+        public int fractionType = 0;
 
         private static SetupObj instance;
 
@@ -23,6 +24,7 @@ namespace MetOptLaba1
             return instance;
         }
 
+        // Должно использоваться только для десериализации Json
         public static void SetInstance(SetupObj inst)
         {
             instance = inst;
