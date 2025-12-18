@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MetOptLaba1"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="550" Width="800">
     <Grid>
         <TabControl x:Name="tabControl" SelectionChanged="TabControl_SelectionChanged">
             <TabItem Header="Условия задачи">
@@ -27,6 +27,14 @@
                                     <ComboBoxItem Content="Обыкновенные" />
                                     <ComboBoxItem Content="Десятичные" />
                                 </ComboBox>
+                                <Label Content="Базис: "/>
+                                <ComboBox x:Name="basisComboBox" SelectedIndex="0" SelectionChanged="basisComboBox_SelectionChanged">
+                                    <ComboBoxItem Content="Искусственный" />
+                                    <ComboBoxItem Content="Заданный" />
+                                </ComboBox>
+                                <StackPanel x:Name="basisUi" Orientation="Horizontal" Margin="0,5,0,0" Visibility="Hidden" Loaded="basisUi_Loaded">
+                                    <DataGrid x:Name="basisGrid" CanUserAddRows="False" CanUserDeleteRows="False"/>
+                                </StackPanel>
                             </StackPanel>
                             <StackPanel Orientation="Vertical">
                                 <!-- Margin = "LEFT, UP, RIGHT, BOTTOM" -->
@@ -39,11 +47,11 @@
                         <StackPanel Orientation="Vertical" Margin="10">
                             <StackPanel Orientation="Vertical">
                                 <Label Content="Целевая функция"/>
-                                <DataGrid x:Name="targetGrid" CanUserAddRows="False" Loaded="grid_Loaded"/>
+                                <DataGrid x:Name="targetGrid" CanUserAddRows="False" CanUserDeleteRows="False" Loaded="grid_Loaded"/>
                             </StackPanel>
                             <StackPanel Orientation="Vertical">
                                 <Label Content="Ограничения"/>
-                                <DataGrid x:Name="constraintGrid" CanUserAddRows="False" Loaded="grid_Loaded"/>
+                                <DataGrid x:Name="constraintGrid" CanUserAddRows="False" CanUserDeleteRows="False" Loaded="grid_Loaded"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>

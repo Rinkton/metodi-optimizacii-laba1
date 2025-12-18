@@ -216,6 +216,7 @@ namespace MetOptLaba1
             {
                 Name = $"simplexTable{idx}",
                 CanUserAddRows = false,
+                CanUserDeleteRows = false,
                 IsReadOnly = true,
             };
 

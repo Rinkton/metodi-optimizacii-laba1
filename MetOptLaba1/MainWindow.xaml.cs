@@ -57,10 +57,30 @@ namespace MetOptLaba1
                 int rowCount = SetupObj.GetInstance().constraintAmount;
                 updateTargetTable(columnCount);
                 updateConstraintTable(columnCount, rowCount);
+                updateBasisTable(SetupObj.GetInstance().variableAmount);
             }
             catch(FormatException ex) {
                 return;
             }
+        }
+
+        private void updateBasisTable(int variableAmount)
+        {
+            DataTable dt = new DataTable();
+
+            for(int i = 0; i < variableAmount; i++) {
+                dt.Columns.Add($"x{i+1}", typeof(string));
+            }
+
+
+            var row = dt.NewRow();
+            for(int i = 0; i < variableAmount; i++) {
+                row[$"x{i + 1}"] = SetupObj.GetInstance().basisStringTable[i];
+            }
+            dt.Rows.Add(row);
+
+            basisGrid.ItemsSource = dt.DefaultView;
+            basisGrid.AutoGenerateColumns = true;
         }
 
         private void updateTargetTable(int columnCount)
@@ -176,6 +196,7 @@ namespace MetOptLaba1
             updateStringTables();
             string[,] targetString2DContentTable = getDataGridContentTable(targetGrid);
             string[,] constraintStringContentTable = getDataGridContentTable(constraintGrid);
+            string[,] basisString2DContentTable = getDataGridContentTable(basisGrid);
             try {
                 Fraction[,] targetFraction2DContentTable = getFractionContentTable(targetString2DContentTable);
                 Fraction[] targetFractionContentTable = Utils.GetArray2DFirstRow(targetFraction2DContentTable);
@@ -183,12 +204,16 @@ namespace MetOptLaba1
                 if (optimizationProblemComboBox.SelectedIndex == 1) {
                     multiplyByMinusOne(targetFractionContentTable);
                 }
+
                 Fraction[,] constraintFractionContentTable = getFractionContentTable(constraintStringContentTable);
+
+                Fraction[,] basisFraction2DContentTable = getFractionContentTable(basisString2DContentTable);
+                Fraction[] basisFractionContentTable = Utils.GetArray2DFirstRow(basisFraction2DContentTable);
+
                 SimplexTableContentFormer simplexTableContentFormer = new SimplexTableContentFormer();
-                Fraction[] x0 = new Fraction[] { new Fraction(0, 1), new Fraction(1, 1), new Fraction(1, 1), new Fraction(0, 1) };
                 Fraction[,] simplexTableContent = simplexTableContentFormer.FormSimplexTableContent(
-                    targetFractionContentTable, constraintFractionContentTable, x0);
-                SimplexTable simplexTable = new SimplexTable(simplexTableContent, x0, 0);
+                    targetFractionContentTable, constraintFractionContentTable, basisFractionContentTable);
+                SimplexTable simplexTable = new SimplexTable(simplexTableContent, basisFractionContentTable, 0);
                 simplexTable_MadeNewSimplexTable(simplexTable);
                 // TODO: Наверно стоить сделать ввод базиса, причём так, красиво
                 // если заданный, то его можно прям вписать по циферкам а не по чекбоксам,
@@ -238,6 +263,8 @@ namespace MetOptLaba1
             }
         }
 
+        // TODO: при искусственном базисе мы хоть и не очищаем заданный пользователем ранее
+        // базис, но всё же просто игнорируем его юноу
         private void load_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -270,6 +297,7 @@ namespace MetOptLaba1
             constraintAmount.Text = SetupObj.GetInstance().constraintAmount.ToString();
             optimizationProblemComboBox.SelectedIndex = SetupObj.GetInstance().optimizationProblem;
             fractionTypeComboBox.SelectedIndex = SetupObj.GetInstance().fractionType;
+            basisComboBox.SelectedIndex = SetupObj.GetInstance().basisType;
 
             applyingLoadedSetupObj = false;
         }
@@ -286,6 +314,9 @@ namespace MetOptLaba1
 
             string[,] constraintStringContentTable = getDataGridContentTable(constraintGrid);
             SetupObj.GetInstance().constraintStringTable = constraintStringContentTable;
+
+            string[,] basisString2DContentTable = getDataGridContentTable(basisGrid);
+            SetupObj.GetInstance().basisStringTable = Utils.GetArray2DFirstRow(basisString2DContentTable);
         }
 
         private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -310,6 +341,32 @@ namespace MetOptLaba1
         private void fractionTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             SetupObj.GetInstance().fractionType = fractionTypeComboBox.SelectedIndex;
+        }
+
+        private void basisComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            SetupObj.GetInstance().basisType = basisComboBox.SelectedIndex;
+            updateBasisUi();
+        }
+
+        private void basisUi_Loaded(object sender, RoutedEventArgs e)
+        {
+            updateBasisUi();
+        }
+
+        private void updateBasisUi()
+        {
+            if(basisUi == null) {
+                return;
+            }
+            switch(basisComboBox.SelectedIndex) {
+                case 0:
+                    basisUi.Visibility = Visibility.Hidden;
+                    break;
+                case 1:
+                    basisUi.Visibility = Visibility.Visible;
+                    break;
+            }
         }
     }
 
