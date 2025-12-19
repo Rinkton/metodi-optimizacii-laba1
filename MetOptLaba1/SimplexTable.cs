@@ -159,7 +159,7 @@ namespace MetOptLaba1
             int[] nextBasisVariables;
 
             int freeVariableToReplace = freeVariables[chosenColumn];
-            int basisVariableToReplace = basisVariables[chosenColumn];
+            int basisVariableToReplace = basisVariables[chosenRow];
 
             // Создаём копии массивов, не просто ссылаемся
             nextFreeVariables = freeVariables.ToArray();

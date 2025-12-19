@@ -18,6 +18,13 @@ namespace MetOptLaba1
             simplify();
         }
 
+        public Fraction(Fraction fraction)
+        {
+            Numerator = fraction.Numerator;
+            Denominator = fraction.Denominator;
+            simplify();
+        }
+
         /* TODO: Возможно стоит сделать типа упрощение дроби после каждого изменения
          * В сеттерах сверху */
         public static Fraction operator +(Fraction a, Fraction b)

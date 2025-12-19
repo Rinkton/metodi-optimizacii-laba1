@@ -225,16 +225,15 @@ namespace MetOptLaba1
                     getNonlinearConstraints(constraintFractionContentTable);
 
                 if(isArtificialBasis) {
-                    nonlinearConstraints = applyArtificialBasis(nonlinearConstraints, basisFractionContentTable);
+                    (targetFractionContentTable, nonlinearConstraints, 
+                        basisFractionContentTable) = 
+                        applyArtificialBasis(targetFractionContentTable, 
+                        nonlinearConstraints, basisFractionContentTable);
                 }
                 Fraction[,] simplexTableContent = simplexTableContentFormer.FormSimplexTableContent(
                     targetFractionContentTable, nonlinearConstraints, basisFractionContentTable);
                 SimplexTable simplexTable = new SimplexTable(simplexTableContent, basisFractionContentTable, 0);
                 simplexTable_MadeNewSimplexTable(simplexTable);
-                // TODO: Наверно стоить сделать ввод базиса, причём так, красиво
-                // если заданный, то его можно прям вписать по циферкам а не по чекбоксам,
-                // если искусственный, то
-                // оно исчезнет
 
             } catch (FractionConvertingException exception) {
                 UserError.Show($"Клетка имеющая значение '{exception.value}' не является корректным числом");
@@ -262,6 +261,34 @@ namespace MetOptLaba1
                     }
                 }
             }
+        }
+
+        private (Fraction[] target, Fraction[,] constraints, Fraction[] basis) 
+            applyArtificialBasis(
+            Fraction[] target, Fraction[,] constraints, Fraction[] basis)
+        {
+            basis = new Fraction[constraints.GetLength(0) + constraints.GetLength(1) - 1];
+            for(int i = 0; i < constraints.GetLength(1) - 1; i++) {
+                basis[i] = new Fraction(0, 1);
+            }
+            for(int i = constraints.GetLength(1) - 1; i < basis.Length; i++) {
+                basis[i] = new Fraction(constraints[i - constraints.GetLength(1) + 1, 
+                    constraints.GetLength(1) - 1]);
+            }
+
+            Fraction[] preTarget = target;
+            target = new Fraction[constraints.GetLength(0) + constraints.GetLength(1)];
+            for(int i = 0; i < preTarget.Length-1; i++) {
+                target[i] = new Fraction(0, 1);
+            }
+            for(int i = preTarget.Length-1; i < target.Length-1; i++) {
+                target[i] = new Fraction(1, 1);
+            }
+            target[target.Length - 1] = new Fraction(0, 1);
+
+            constraints = InsertUnitMatrixBetweenColumns(
+                constraints, constraints.GetLength(1)-2);
+            return (target, constraints, basis);
         }
 
         // public static чтобы тестить
@@ -301,22 +328,6 @@ namespace MetOptLaba1
             }
 
             return result;
-        }
-
-        // новые constraints возвращает, новый basis меняет в самом методе
-        private Fraction[,] applyArtificialBasis(Fraction[,] constraints, Fraction[] basis)
-        {
-            // TODO: надо добавлять не в конец единички, а начиная с предконца и в начало двигаться
-            basis = new Fraction[constraints.GetLength(0) + constraints.GetLength(1)];
-            for(int i = 0; i < constraints.GetLength(0); i++) {
-                basis[i] = new Fraction(0, 1);
-            }
-            for(int i = constraints.GetLength(0); i < basis.Length; i++) {
-                basis[i] = new Fraction(1, 1);
-            }
-            constraints = InsertUnitMatrixBetweenColumns(
-                constraints, constraints.GetLength(1)-2);
-            return constraints;
         }
 
         private void simplexTable_MadeNewSimplexTable(SimplexTable simplexTable)
