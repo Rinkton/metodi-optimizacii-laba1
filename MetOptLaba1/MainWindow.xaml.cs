@@ -233,7 +233,7 @@ namespace MetOptLaba1
                 Fraction[,] simplexTableContent = simplexTableContentFormer.FormSimplexTableContent(
                     targetFractionContentTable, nonlinearConstraints, basisFractionContentTable);
                 SimplexTable simplexTable = new SimplexTable(simplexTableContent, basisFractionContentTable, 0);
-                simplexTable_MadeNewSimplexTable(simplexTable);
+                simplexTable_MadeNewSimplexTable(simplexTable, null);
 
             } catch (FractionConvertingException exception) {
                 UserError.Show($"Клетка имеющая значение '{exception.value}' не является корректным числом");
@@ -330,12 +330,27 @@ namespace MetOptLaba1
             return result;
         }
 
-        private void simplexTable_MadeNewSimplexTable(SimplexTable simplexTable)
+        private void simplexTable_MadeNewSimplexTable(SimplexTable newSimplexTable, 
+            SimplexTable? parentSimplexTable)
         {
-            simplexTable.MadeNewSimplexTable += simplexTable_MadeNewSimplexTable;
-            DataGrid dg = simplexTable.DataGrid;
+            newSimplexTable.MadeNewSimplexTable += simplexTable_MadeNewSimplexTable;
+            DataGrid dg = newSimplexTable.DataGrid;
+            if(parentSimplexTable != null) {
+                var idxToCutOff = parentSimplexTable.Idx + 1;
+                while(true) {
+                    var simplexTableToCutOff = simplexGrid.Children
+                        .OfType<FrameworkElement>()
+                        .FirstOrDefault(x => x.Name == $"simplexTable{idxToCutOff}");
+
+                    if(simplexTableToCutOff == null) {
+                        break;
+                    }
+                    simplexGrid.Children.Remove(simplexTableToCutOff);
+                    idxToCutOff++;
+                }
+            }
             simplexGrid.Children.Add(dg);
-            if(simplexTable.GetIsItSolved()) {
+            if(newSimplexTable.GetIsItSolved()) {
                 // TODO
             }
             // GetIsItUnbounded

@@ -16,13 +16,14 @@ namespace MetOptLaba1
     public class SimplexTable
     {
         public readonly DataGrid DataGrid;
-        public delegate void NextSimplexTableHandler(SimplexTable nextSimplexTable);
+        public delegate void NextSimplexTableHandler(SimplexTable nextSimplexTable, 
+            SimplexTable parentSimplexTable);
         public event NextSimplexTableHandler MadeNewSimplexTable;
+        public readonly int Idx;
 
         private Fraction[,] content;
         private int[] freeVariables;
         private int[] basisVariables;
-        private int idx;
 
         private List<AllowableElementData> allowableElementDatas = new List<AllowableElementData>();
 
@@ -32,7 +33,7 @@ namespace MetOptLaba1
             this.content = content;
             this.freeVariables = freeVariables;
             this.basisVariables = basisVariables;
-            this.idx = idx;
+            this.Idx = idx;
             DataGrid = getDataGrid(idx);
             DataGrid.Loaded += dataGrid_Loaded;
         }
@@ -53,7 +54,7 @@ namespace MetOptLaba1
             }
             freeVariables = freeVariablesList.ToArray();
             basisVariables = basisVariablesList.ToArray();
-            this.idx = idx;
+            this.Idx = idx;
             DataGrid = getDataGrid(idx);
             DataGrid.Loaded += dataGrid_Loaded;
         }
@@ -170,7 +171,7 @@ namespace MetOptLaba1
             nextFreeVariables[chosenColumn] = basisVariableToReplace;
             nextBasisVariables[chosenRow] = freeVariableToReplace;
 
-            return new SimplexTable(nextContent, nextFreeVariables, nextBasisVariables, idx+1);
+            return new SimplexTable(nextContent, nextFreeVariables, nextBasisVariables, Idx+1);
         }
 
         private Fraction[,] getNextContent(int chosenRow, int chosenColumn)
@@ -295,7 +296,7 @@ namespace MetOptLaba1
 
             if (isThisElementIsAllowable(row, column)) {
                 SimplexTable nextSimplexTable = getNextSimplexTable(row, column);
-                MadeNewSimplexTable(nextSimplexTable);
+                MadeNewSimplexTable(nextSimplexTable, this);
             }
         }
 
