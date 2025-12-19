@@ -17,9 +17,11 @@ namespace MetOptLaba1
     {
         public readonly DataGrid DataGrid;
         public delegate void NextSimplexTableHandler(SimplexTable nextSimplexTable, 
-            SimplexTable parentSimplexTable);
+            SimplexTable parentSimplexTable, StackPanel grid);
         public event NextSimplexTableHandler MadeNewSimplexTable;
         public readonly int Idx;
+        public readonly StackPanel Grid;
+        public int RealVariablesCount { get; private set; }
 
         private Fraction[,] content;
         private int[] freeVariables;
@@ -28,18 +30,22 @@ namespace MetOptLaba1
         private List<AllowableElementData> allowableElementDatas = new List<AllowableElementData>();
 
         // Обычно вызывается после первого шага
-        public SimplexTable(Fraction[,] content, int[] freeVariables, int[] basisVariables, int idx)
+        public SimplexTable(Fraction[,] content, int[] freeVariables, 
+            int[] basisVariables, int idx, StackPanel grid, int realVariablesCount)
         {
             this.content = content;
             this.freeVariables = freeVariables;
             this.basisVariables = basisVariables;
-            this.Idx = idx;
+            Idx = idx;
+            Grid = grid;
             DataGrid = getDataGrid(idx);
+            RealVariablesCount = realVariablesCount;
             DataGrid.Loaded += dataGrid_Loaded;
         }
 
         // Обычно вызывается сразу после формирования симплекс таблицы
-        public SimplexTable(Fraction[,] content, Fraction[] x0, int idx)
+        public SimplexTable(Fraction[,] content, Fraction[] x0, int idx, 
+            StackPanel grid, int realVariablesCount)
         {
             this.content = content;
             List<int> freeVariablesList = new List<int>();
@@ -54,7 +60,9 @@ namespace MetOptLaba1
             }
             freeVariables = freeVariablesList.ToArray();
             basisVariables = basisVariablesList.ToArray();
-            this.Idx = idx;
+            Idx = idx;
+            Grid = grid;
+            RealVariablesCount = realVariablesCount;
             DataGrid = getDataGrid(idx);
             DataGrid.Loaded += dataGrid_Loaded;
         }
@@ -171,7 +179,39 @@ namespace MetOptLaba1
             nextFreeVariables[chosenColumn] = basisVariableToReplace;
             nextBasisVariables[chosenRow] = freeVariableToReplace;
 
-            return new SimplexTable(nextContent, nextFreeVariables, nextBasisVariables, Idx+1);
+            if(RealVariablesCount != 0 &&
+                basisVariableToReplace > RealVariablesCount - 1) 
+            {
+                nextContent = RemoveColumn(nextContent, chosenColumn);
+                nextFreeVariables = RemoveElement(nextFreeVariables, basisVariableToReplace);
+            }
+
+            return new SimplexTable(nextContent, nextFreeVariables, 
+                nextBasisVariables, Idx+1, Grid, RealVariablesCount);
+        }
+
+        public static int[] RemoveElement(int[] array, int value)
+        {
+            return array.Where(f => f != value).ToArray();
+        }
+
+        public static Fraction[,] RemoveColumn(Fraction[,] original, int columnToRemove)
+        {
+            int rows = original.GetLength(0);
+            int cols = original.GetLength(1);
+
+            Fraction[,] result = new Fraction[rows, cols - 1];
+
+            for(int i = 0; i < rows; i++) {
+                for(int j = 0, newJ = 0; j < cols; j++) {
+                    if(j == columnToRemove) continue;
+
+                    result[i, newJ] = original[i, j];
+                    newJ++;
+                }
+            }
+
+            return result;
         }
 
         private Fraction[,] getNextContent(int chosenRow, int chosenColumn)
@@ -296,7 +336,7 @@ namespace MetOptLaba1
 
             if (isThisElementIsAllowable(row, column)) {
                 SimplexTable nextSimplexTable = getNextSimplexTable(row, column);
-                MadeNewSimplexTable(nextSimplexTable, this);
+                MadeNewSimplexTable(nextSimplexTable, this, Grid);
             }
         }
 

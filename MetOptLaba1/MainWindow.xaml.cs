@@ -192,6 +192,7 @@ namespace MetOptLaba1
         private void apply_Click(object sender, RoutedEventArgs e)
         {
             // TODO: Все ли вводные задачи сохраняются?(базис, минимум максимум...)
+            artificialSimplexGrid.Children.Clear();
             simplexGrid.Children.Clear();
             updateStringTables();
             string[,] targetString2DContentTable = getDataGridContentTable(targetGrid);
@@ -224,16 +225,22 @@ namespace MetOptLaba1
                 Fraction[,] nonlinearConstraints = simplexTableContentFormer.
                     getNonlinearConstraints(constraintFractionContentTable);
 
+                int realVariablesCount = SetupObj.GetInstance().variableAmount;
+
                 if(isArtificialBasis) {
                     (targetFractionContentTable, nonlinearConstraints, 
                         basisFractionContentTable) = 
                         applyArtificialBasis(targetFractionContentTable, 
                         nonlinearConstraints, basisFractionContentTable);
+                    
                 }
                 Fraction[,] simplexTableContent = simplexTableContentFormer.FormSimplexTableContent(
                     targetFractionContentTable, nonlinearConstraints, basisFractionContentTable);
-                SimplexTable simplexTable = new SimplexTable(simplexTableContent, basisFractionContentTable, 0);
-                simplexTable_MadeNewSimplexTable(simplexTable, null);
+                SimplexTable simplexTable = new SimplexTable(simplexTableContent, 
+                    basisFractionContentTable, 0, 
+                    isArtificialBasis ? artificialSimplexGrid : simplexGrid, 
+                    isArtificialBasis ? realVariablesCount : 0);
+                simplexTable_MadeNewSimplexTable(simplexTable, null, simplexTable.Grid);
 
             } catch (FractionConvertingException exception) {
                 UserError.Show($"Клетка имеющая значение '{exception.value}' не является корректным числом");
@@ -331,25 +338,31 @@ namespace MetOptLaba1
         }
 
         private void simplexTable_MadeNewSimplexTable(SimplexTable newSimplexTable, 
-            SimplexTable? parentSimplexTable)
+            SimplexTable? parentSimplexTable, StackPanel grid)
         {
             newSimplexTable.MadeNewSimplexTable += simplexTable_MadeNewSimplexTable;
             DataGrid dg = newSimplexTable.DataGrid;
             if(parentSimplexTable != null) {
                 var idxToCutOff = parentSimplexTable.Idx + 1;
                 while(true) {
-                    var simplexTableToCutOff = simplexGrid.Children
+                    var simplexTableToCutOff = grid.Children
                         .OfType<FrameworkElement>()
                         .FirstOrDefault(x => x.Name == $"simplexTable{idxToCutOff}");
 
                     if(simplexTableToCutOff == null) {
                         break;
                     }
-                    simplexGrid.Children.Remove(simplexTableToCutOff);
+                    grid.Children.Remove(simplexTableToCutOff);
                     idxToCutOff++;
                 }
             }
-            simplexGrid.Children.Add(dg);
+            grid.Children.Add(dg);
+            if (grid == simplexGrid) {
+                simplexTab.Visibility = Visibility.Visible;
+            }
+            else if (grid == artificialSimplexGrid) {
+                artificalTab.Visibility = Visibility.Visible;
+            }
             if(newSimplexTable.GetIsItSolved()) {
                 // TODO
             }
@@ -438,11 +451,21 @@ namespace MetOptLaba1
             if (selectedTab == null) {
                 return;
             }
-            if(selectedTab.Header.ToString() == "Симплекс метод") {
-                foreach (DataGrid simplexDataGrid in simplexGrid.Children) {
-                    SimplexTable simplexTable = simplexDataGrid.Tag as SimplexTable;
-                    simplexTable.PaintCells();
-                }
+            switch(selectedTab.Header.ToString()) {
+                case "Симплекс метод":
+                    gridPaintCells(simplexGrid);
+                    break;
+                case "Метод искусственного базиса":
+                    gridPaintCells(artificialSimplexGrid);
+                    break;
+            }
+        }
+
+        private void gridPaintCells(StackPanel dataGrid)
+        {
+            foreach(DataGrid simplexDataGrid in dataGrid.Children) {
+                SimplexTable simplexTable = simplexDataGrid.Tag as SimplexTable;
+                simplexTable.PaintCells();
             }
         }
 

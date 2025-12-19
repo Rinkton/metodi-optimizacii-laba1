@@ -57,7 +57,13 @@
                     </StackPanel>
                 </Grid>
             </TabItem>
-            <TabItem Header="Симплекс метод">
+            <TabItem x:Name="artificalTab" Header="Метод искусственного базиса" Visibility="Collapsed">
+                <Grid Background="#FFE5E5E5">
+                    <StackPanel x:Name = "artificialSimplexGrid" Orientation="Vertical" Margin="10">
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+            <TabItem x:Name="simplexTab" Header="Симплекс метод" Visibility="Collapsed">
                 <Grid Background="#FFE5E5E5">
                     <StackPanel x:Name = "simplexGrid" Orientation="Vertical" Margin="10">
                     </StackPanel>
