@@ -22,6 +22,7 @@ namespace MetOptLaba1
         public readonly int Idx;
         public readonly StackPanel Grid;
         public int RealVariablesCount { get; private set; }
+        public bool noStepsAllowed { get; private set; } = false;
 
         private Fraction[,] content;
         private int[] freeVariables;
@@ -69,10 +70,21 @@ namespace MetOptLaba1
 
         public void PaintCells()
         {
-            var(allowableColumnList, bestColumns) = getAllowableColumnListAndBestColumns();
-            
+            bool isArtificialMethod = RealVariablesCount != 0;
+            var (allowableColumnList, bestColumns) = 
+                getAllowableColumnListAndBestColumns(false);
+            bool allowIdling = allowableColumnList.Count == 0 && !GetIsFAllZero() && 
+                GetIsThereArtificial() && isArtificialMethod;
+            if (allowIdling) {
+                (allowableColumnList, bestColumns) =
+                    getAllowableColumnListAndBestColumns(true);
+            }
+
             // Вероятно, это решение
-            if(allowableColumnList.Count == 0) return;
+            if(allowableColumnList.Count == 0) {
+                noStepsAllowed = true;
+                return;
+            }
 
             for (int j = 0; j < allowableColumnList.Count; j++) {
                 // allowableRows не существует, там ток лучшие есчо
@@ -113,14 +125,14 @@ namespace MetOptLaba1
         }
 
         public (List<int> allowableColumnList, List<int> bestColumns) 
-            getAllowableColumnListAndBestColumns()
+            getAllowableColumnListAndBestColumns(bool allowIdling)
         {
             List<int> allowableColumnList = new List<int>();
             List<int> bestColumns = new List<int>();
             Fraction bestColumnValue = Fraction.GetZero();
             for(int i = 0; i < freeVariables.Length; i++) {
                 Fraction fElem = content[basisVariables.Length, i];
-                if(fElem.Numerator < 0) {
+                if(fElem.Numerator < 0 || allowIdling) {
                     allowableColumnList.Add(i);
                     if (bestColumns.Count == 0 || fElem < bestColumnValue) {
                         bestColumns = new List<int>{ i };
@@ -160,6 +172,30 @@ namespace MetOptLaba1
             }
             return false;
         }
+
+        public bool GetIsFAllZero()
+        {
+            for(int i = 0; i < content.GetLength(1); i++) {
+                if(content[content.GetLength(0) - 1, i].Numerator != 0) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public bool GetIsThereArtificial()
+        {
+            for(int i = 0; i < basisVariables.Length; i++) {
+                if(basisVariables[i] > RealVariablesCount - 1) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // TODO: автоматическое решалово при выполнении холостых шагов на искусственном методе
+        // должно как-то находить какой-нибудь опорный элемент, который выведет искусственную
+        // переменную из базиса
 
         // По сути возвращает результат шага симплекс-метода
         public SimplexTable getNextSimplexTable(int chosenRow, int chosenColumn)

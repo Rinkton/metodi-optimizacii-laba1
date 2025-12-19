@@ -359,14 +359,26 @@ namespace MetOptLaba1
             grid.Children.Add(dg);
             if (grid == simplexGrid) {
                 simplexTab.Visibility = Visibility.Visible;
+                if(newSimplexTable.GetIsItSolved()) {
+                    // TODO make answer of point
+                }
+                else if (newSimplexTable.GetIsItUnbounded()) {
+                    // TODO make answer of unbounded
+                }
             }
             else if (grid == artificialSimplexGrid) {
                 artificalTab.Visibility = Visibility.Visible;
+                if (newSimplexTable.GetIsFAllZero() && 
+                    newSimplexTable.GetIsThereArtificial()) 
+                {
+                    // TODO transfer table to the simplex method
+                }
+                else if (newSimplexTable.noStepsAllowed) {
+                    // > 0 несовм
+                    // < 0 руки кривые почему-то
+                    // GetIsThereArtificial()
+                }
             }
-            if(newSimplexTable.GetIsItSolved()) {
-                // TODO
-            }
-            // GetIsItUnbounded
         }
 
         private void save_Click(object sender, RoutedEventArgs e)
