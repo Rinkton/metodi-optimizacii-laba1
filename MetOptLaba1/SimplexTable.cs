@@ -68,8 +68,8 @@ namespace MetOptLaba1
                 List<int> bestRows = new List<int>();
                 Fraction bestDivision = Fraction.GetZero();
                 for (int i = 0; i < basisVariables.Length; i++) {
-                    Fraction elem = content[i, j];
-                    if(elem.Numerator < 0) {
+                    Fraction elem = content[i, allowableColumnList[j]];
+                    if(elem.Numerator <= 0) {
                         continue;
                     }
                     Fraction bElem = content[i, freeVariables.Length];
