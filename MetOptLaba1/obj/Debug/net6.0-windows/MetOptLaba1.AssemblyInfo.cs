@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MetOptLaba1")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b57f7774ae1544d1e920782e3c1cb9ea5bce1d2b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+36477cc455428242606e8f00a9c0e8a7d73040d2")]
 [assembly: System.Reflection.AssemblyProductAttribute("MetOptLaba1")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MetOptLaba1")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

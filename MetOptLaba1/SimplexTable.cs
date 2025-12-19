@@ -34,6 +34,7 @@ namespace MetOptLaba1
             this.basisVariables = basisVariables;
             this.idx = idx;
             DataGrid = getDataGrid(idx);
+            DataGrid.Loaded += dataGrid_Loaded;
         }
 
         // Обычно вызывается сразу после формирования симплекс таблицы
@@ -54,6 +55,7 @@ namespace MetOptLaba1
             basisVariables = basisVariablesList.ToArray();
             this.idx = idx;
             DataGrid = getDataGrid(idx);
+            DataGrid.Loaded += dataGrid_Loaded;
         }
 
         public void PaintCells()
@@ -261,6 +263,11 @@ namespace MetOptLaba1
             dataGrid.Tag = this;
 
             return dataGrid;
+        }
+
+        private void dataGrid_Loaded(object sender, RoutedEventArgs e)
+        {
+            PaintCells();
         }
 
         private void dataGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
