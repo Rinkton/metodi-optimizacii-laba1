@@ -89,7 +89,7 @@ namespace MetOptLaba1
                 for (int i = 0; i < bestRows.Count; i++) {
                     var row = bestRows[i];
                     AllowableElementData allowableElementData = new AllowableElementData(
-                    row, j, bestColumns.Contains(j));
+                    row, allowableColumnList[j], bestColumns.Contains(allowableColumnList[j]));
                     allowableElementDatas.Add(allowableElementData);
                     Painter.ColorCell(DataGrid,
                         allowableElementData.row,
