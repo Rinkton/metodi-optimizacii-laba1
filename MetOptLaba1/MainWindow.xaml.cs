@@ -199,25 +199,30 @@ namespace MetOptLaba1
             string[,] constraintStringContentTable = getDataGridContentTable(constraintGrid);
             string[,] basisString2DContentTable = getDataGridContentTable(basisGrid);
             try {
+                if(SetupObj.GetInstance().variableAmount == 0 ||
+                    SetupObj.GetInstance().constraintAmount == 0) {
+                    throw new UserException("Некорректная задача. Количество " +
+                        "переменных или количество ограничений равно 0");
+                }
                 Fraction[,] targetFraction2DContentTable = getFractionContentTable(targetString2DContentTable);
                 Fraction[] targetFractionContentTable = Utils.GetArray2DFirstRow(targetFraction2DContentTable);
                 // Если задача на максимизацию
-                if (optimizationProblemComboBox.SelectedIndex == 1) {
+                if(optimizationProblemComboBox.SelectedIndex == 1) {
                     multiplyByMinusOne(targetFractionContentTable);
                 }
 
                 // НЕ ИСПОЛЬЗУЙ это в расчётах
                 Fraction[,] constraintFractionContentTable = getFractionContentTable(constraintStringContentTable);
-                bool isArtificialBasis = basisComboBox.SelectedIndex == 0;
-                if (isArtificialBasis) {
+                bool isArtificialBasis = solutionTypeComboBox.SelectedIndex == 0;
+                if(isArtificialBasis) {
                     ensureConstraintsRightPartIsPositive(constraintFractionContentTable);
                 }
 
                 Fraction[] basisFractionContentTable = new Fraction[1];
-                if (!isArtificialBasis) {
-                    Fraction[,] basisFraction2DContentTable = 
+                if(!isArtificialBasis) {
+                    Fraction[,] basisFraction2DContentTable =
                         getFractionContentTable(basisString2DContentTable);
-                    basisFractionContentTable = 
+                    basisFractionContentTable =
                         Utils.GetArray2DFirstRow(basisFraction2DContentTable);
                 }
 
@@ -226,30 +231,41 @@ namespace MetOptLaba1
                 Fraction[,] nonlinearConstraints = simplexTableContentFormer.
                     getNonlinearConstraints(constraintFractionContentTable);
 
-                Fraction[,] gaussHandledConstraints = 
+                Fraction[,] gaussHandledConstraints =
                     simplexTableContentFormer
                     .GetGaussHandledConstraintsAndBasisVariables(
-                        basisFractionContentTable, nonlinearConstraints, 
+                        basisFractionContentTable, nonlinearConstraints,
                         isArtificialBasis);
 
                 int realVariablesCount = SetupObj.GetInstance().variableAmount;
 
                 if(isArtificialBasis) {
-                    (targetFractionContentTable, gaussHandledConstraints, 
-                        basisFractionContentTable) = 
+                    (targetFractionContentTable, gaussHandledConstraints,
+                        basisFractionContentTable) =
                         applyArtificialBasis(targetFractionContentTable,
-                        gaussHandledConstraints, basisFractionContentTable);    
+                        gaussHandledConstraints, basisFractionContentTable);
                 }
-                Fraction[,] simplexTableContent = simplexTableContentFormer.FormSimplexTableContent(
-                    targetFractionContentTable, gaussHandledConstraints, basisFractionContentTable);
-                SimplexTable simplexTable = new SimplexTable(simplexTableContent, 
-                    basisFractionContentTable, 0, 
-                    isArtificialBasis ? artificialSimplexGrid : simplexGrid, 
-                    isArtificialBasis ? realVariablesCount : 0);
-                simplexTable_MadeNewSimplexTable(simplexTable, null, simplexTable.Grid);
+                // Если графический метод решения
+                if(solutionTypeComboBox.SelectedIndex == 2) {
 
-            } catch (FractionConvertingException exception) {
+                }
+                // Иначе чё-то с симплексом
+                else {
+                    Fraction[,] simplexTableContent = simplexTableContentFormer.FormSimplexTableContent(
+                        targetFractionContentTable, gaussHandledConstraints, basisFractionContentTable);
+                    SimplexTable simplexTable = new SimplexTable(simplexTableContent,
+                        basisFractionContentTable, 0,
+                        isArtificialBasis ? artificialSimplexGrid : simplexGrid,
+                        isArtificialBasis ? realVariablesCount : 0);
+                    simplexTable_MadeNewSimplexTable(simplexTable, null, simplexTable.Grid);
+                }
+
+            }
+            catch(FractionConvertingException exception) {
                 UserError.Show($"Клетка имеющая значение '{exception.value}' не является корректным числом");
+            }
+            catch(UserException exception) {
+                UserError.Show(exception.Message);
             }
         }
 
@@ -441,7 +457,7 @@ namespace MetOptLaba1
             constraintAmount.Text = SetupObj.GetInstance().constraintAmount.ToString();
             optimizationProblemComboBox.SelectedIndex = SetupObj.GetInstance().optimizationProblem;
             fractionTypeComboBox.SelectedIndex = SetupObj.GetInstance().fractionType;
-            basisComboBox.SelectedIndex = SetupObj.GetInstance().basisType;
+            solutionTypeComboBox.SelectedIndex = SetupObj.GetInstance().solutionType;
 
             applyingLoadedSetupObj = false;
         }
@@ -497,12 +513,6 @@ namespace MetOptLaba1
             SetupObj.GetInstance().fractionType = fractionTypeComboBox.SelectedIndex;
         }
 
-        private void basisComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            SetupObj.GetInstance().basisType = basisComboBox.SelectedIndex;
-            updateBasisUi();
-        }
-
         private void basisUi_Loaded(object sender, RoutedEventArgs e)
         {
             updateBasisUi();
@@ -513,14 +523,20 @@ namespace MetOptLaba1
             if(basisUi == null) {
                 return;
             }
-            switch(basisComboBox.SelectedIndex) {
+            switch(solutionTypeComboBox.SelectedIndex) {
                 case 0:
-                    basisUi.Visibility = Visibility.Hidden;
-                    break;
-                case 1:
                     basisUi.Visibility = Visibility.Visible;
                     break;
+                default:
+                    basisUi.Visibility = Visibility.Hidden;
+                    break;
             }
+        }
+
+        private void solutionTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            SetupObj.GetInstance().solutionType = solutionTypeComboBox.SelectedIndex;
+            updateBasisUi();
         }
     }
 

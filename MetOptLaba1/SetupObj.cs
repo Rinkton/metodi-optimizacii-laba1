@@ -13,7 +13,7 @@ namespace MetOptLaba1
         public string[] basisStringTable = new string[1];
         public int optimizationProblem = 0;
         public int fractionType = 0;
-        public int basisType = 0;
+        public int solutionType = 0;
 
         private static SetupObj instance;
 

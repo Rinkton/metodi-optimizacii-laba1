@@ -27,10 +27,11 @@
                                     <ComboBoxItem Content="Обыкновенные" />
                                     <ComboBoxItem Content="Десятичные" />
                                 </ComboBox>
-                                <Label Content="Базис: "/>
-                                <ComboBox x:Name="basisComboBox" SelectedIndex="0" SelectionChanged="basisComboBox_SelectionChanged">
-                                    <ComboBoxItem Content="Искусственный" />
-                                    <ComboBoxItem Content="Заданный" />
+                                <Label Content="Метод решения: "/>
+                                <ComboBox x:Name="solutionTypeComboBox" SelectedIndex="0" SelectionChanged="solutionTypeComboBox_SelectionChanged">
+                                    <ComboBoxItem Content="Метод искусственного базиса" />
+                                    <ComboBoxItem Content="Симплекс метод с заданными базисом" />
+                                    <ComboBoxItem Content="Графический двумерный метод" />
                                 </ComboBox>
                                 <StackPanel x:Name="basisUi" Orientation="Horizontal" Margin="0,5,0,0" Visibility="Hidden" Loaded="basisUi_Loaded">
                                     <DataGrid x:Name="basisGrid" CanUserAddRows="False" CanUserDeleteRows="False"/>
