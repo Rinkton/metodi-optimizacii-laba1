@@ -16,4 +16,7 @@
   <ImportGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
     <Import Project="$(NuGetPackageRoot)nunit\4.4.0\build\NUnit.props" Condition="Exists('$(NuGetPackageRoot)nunit\4.4.0\build\NUnit.props')" />
   </ImportGroup>
+  <PropertyGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
+    <PkgOxyPlot_Wpf Condition=" '$(PkgOxyPlot_Wpf)' == '' ">C:\Users\RINK\.nuget\packages\oxyplot.wpf\2.2.0</PkgOxyPlot_Wpf>
+  </PropertyGroup>
 </Project>

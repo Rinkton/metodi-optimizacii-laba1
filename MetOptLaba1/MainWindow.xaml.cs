@@ -247,7 +247,7 @@ namespace MetOptLaba1
                 }
                 // Если графический метод решения
                 if(solutionTypeComboBox.SelectedIndex == 2) {
-
+                    graphicsTab.Visibility = Visibility.Visible;
                 }
                 // Иначе чё-то с симплексом
                 else {

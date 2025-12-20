@@ -24,3 +24,7 @@ C:\Users\RINK\source\repos\MetOptLaba1\MetOptLaba1\obj\Debug\net6.0-windows\MetO
 C:\Users\RINK\source\repos\MetOptLaba1\MetOptLaba1\bin\Debug\net6.0-windows\Newtonsoft.Json.dll
 C:\Users\RINK\source\repos\MetOptLaba1\MetOptLaba1\obj\Debug\net6.0-windows\MetOptLaba1.sourcelink.json
 C:\Users\RINK\source\repos\MetOptLaba1\MetOptLaba1\obj\Debug\net6.0-windows\MetOptLa.F91B1143.Up2Date
+C:\Users\RINK\source\repos\MetOptLaba1\MetOptLaba1\obj\Debug\net6.0-windows\GeneratedInternalTypeHelper.g.cs
+C:\Users\RINK\source\repos\MetOptLaba1\MetOptLaba1\bin\Debug\net6.0-windows\OxyPlot.dll
+C:\Users\RINK\source\repos\MetOptLaba1\MetOptLaba1\bin\Debug\net6.0-windows\OxyPlot.Wpf.dll
+C:\Users\RINK\source\repos\MetOptLaba1\MetOptLaba1\bin\Debug\net6.0-windows\OxyPlot.Wpf.Shared.dll

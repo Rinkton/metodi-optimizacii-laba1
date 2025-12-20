@@ -1,11 +1,14 @@
 {
   "version": 2,
-  "dgSpecHash": "svNfcyQOsZQ=",
+  "dgSpecHash": "i0NyZ1peGTE=",
   "success": true,
   "projectFilePath": "C:\\Users\\RINK\\source\\repos\\MetOptLaba1\\MetOptLaba1\\MetOptLaba1.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\RINK\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512",
-    "C:\\Users\\RINK\\.nuget\\packages\\nunit\\4.4.0\\nunit.4.4.0.nupkg.sha512"
+    "C:\\Users\\RINK\\.nuget\\packages\\nunit\\4.4.0\\nunit.4.4.0.nupkg.sha512",
+    "C:\\Users\\RINK\\.nuget\\packages\\oxyplot.core\\2.2.0\\oxyplot.core.2.2.0.nupkg.sha512",
+    "C:\\Users\\RINK\\.nuget\\packages\\oxyplot.wpf\\2.2.0\\oxyplot.wpf.2.2.0.nupkg.sha512",
+    "C:\\Users\\RINK\\.nuget\\packages\\oxyplot.wpf.shared\\2.2.0\\oxyplot.wpf.shared.2.2.0.nupkg.sha512"
   ],
   "logs": []
 }
