@@ -66,9 +66,6 @@ namespace MetOptLaba1
                 }
             }
 
-            // Ещё прогоним обычным Гауссом, чтобы убрать как можно больше строк
-            matr = GaussAverage.GetHandledMatrix(matr);
-
             return matr;
         }
 
