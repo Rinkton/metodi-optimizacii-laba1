@@ -206,7 +206,7 @@ namespace MetOptLaba1
                     multiplyByMinusOne(targetFractionContentTable);
                 }
 
-                // НЕ ИСПОЛЬЗУЙ это в расчётах, используй nonlinearConstraints ниже
+                // НЕ ИСПОЛЬЗУЙ это в расчётах
                 Fraction[,] constraintFractionContentTable = getFractionContentTable(constraintStringContentTable);
                 bool isArtificialBasis = basisComboBox.SelectedIndex == 0;
                 if (isArtificialBasis) {
@@ -222,20 +222,26 @@ namespace MetOptLaba1
                 }
 
                 SimplexTableContentFormer simplexTableContentFormer = new SimplexTableContentFormer();
+                // НЕ ИСПОЛЬЗУЙ это в расчётах
                 Fraction[,] nonlinearConstraints = simplexTableContentFormer.
                     getNonlinearConstraints(constraintFractionContentTable);
+
+                Fraction[,] gaussHandledConstraints = 
+                    simplexTableContentFormer
+                    .GetGaussHandledConstraintsAndBasisVariables(
+                        basisFractionContentTable, nonlinearConstraints, 
+                        isArtificialBasis);
 
                 int realVariablesCount = SetupObj.GetInstance().variableAmount;
 
                 if(isArtificialBasis) {
-                    (targetFractionContentTable, nonlinearConstraints, 
+                    (targetFractionContentTable, gaussHandledConstraints, 
                         basisFractionContentTable) = 
-                        applyArtificialBasis(targetFractionContentTable, 
-                        nonlinearConstraints, basisFractionContentTable);
-                    
+                        applyArtificialBasis(targetFractionContentTable,
+                        gaussHandledConstraints, basisFractionContentTable);    
                 }
                 Fraction[,] simplexTableContent = simplexTableContentFormer.FormSimplexTableContent(
-                    targetFractionContentTable, nonlinearConstraints, basisFractionContentTable);
+                    targetFractionContentTable, gaussHandledConstraints, basisFractionContentTable);
                 SimplexTable simplexTable = new SimplexTable(simplexTableContent, 
                     basisFractionContentTable, 0, 
                     isArtificialBasis ? artificialSimplexGrid : simplexGrid, 

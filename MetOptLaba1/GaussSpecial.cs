@@ -8,7 +8,7 @@ namespace MetOptLaba1
     /// ещё и требует индексы базисных переменных, что помогает в выражении
     /// базисных переменных через свободные
     /// </summary>
-    public static class SpecialGauss
+    public static class GaussSpecial
     {
         public static Fraction[,] GetHandledMatrix(Fraction[,] matr, int[] basis)
         {
@@ -65,6 +65,9 @@ namespace MetOptLaba1
                     }
                 }
             }
+
+            // Ещё прогоним обычным Гауссом, чтобы убрать как можно больше строк
+            matr = GaussAverage.GetHandledMatrix(matr);
 
             return matr;
         }

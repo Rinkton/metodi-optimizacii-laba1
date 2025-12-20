@@ -57,7 +57,7 @@ namespace Test
                     new Fraction(-10, 1)
                 },
             };
-            Assert.That(SpecialGauss.GetHandledMatrix(matr, basis),
+            Assert.That(GaussSpecial.GetHandledMatrix(matr, basis),
                 Is.EqualTo(expectedMatr));
         }
     }

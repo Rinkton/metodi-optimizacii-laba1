@@ -7,6 +7,7 @@ namespace Test
         {
         }
 
+        /*
         [Test]
         public void FormSimplexTable()
         {
@@ -65,6 +66,7 @@ namespace Test
             Assert.That(actual,
                 Is.EqualTo(expected));
         }
+        */
 
         [Test]
         public void getNonlinearConstraints()

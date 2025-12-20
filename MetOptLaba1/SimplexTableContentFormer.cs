@@ -21,32 +21,13 @@ namespace MetOptLaba1
         // метода искусственного базиса, чтобы все x6+x7+x8 -> min были именно положительными
         public Fraction[,] FormSimplexTableContent(
             Fraction[] target, 
-            Fraction[,] nonlinearConstraints, 
+            Fraction[,] gaussHandledConstraints, 
             Fraction[] x0
             )
         {
-            if(getBasisVariablesCount(x0) != nonlinearConstraints.GetLength(0)) {
-                throw new UserException("Количество элементов в базисе должно " +
-                    "равняться количеству ограничений");
-            }
-            if (!areConstraintsRightWithPoint(nonlinearConstraints, x0)) {
-                throw new UserException("Предложенный базис не удовлетворяет ограничениям");
-            }
             int[] basis = x0toBasis(x0);
-            Fraction[,] gaussHandledConstraints = SpecialGauss.GetHandledMatrix(nonlinearConstraints, basis);
             Fraction[,] simplexTableContent = getSimplexTable(target, gaussHandledConstraints, basis);
             return simplexTableContent;
-        }
-
-        private int[] x0toBasis(Fraction[] x0)
-        {
-            List<int> basisList = new List<int>();
-            for (int i = 0; i < x0.Length; i++) {
-                if(x0[i].Numerator != 0) {
-                    basisList.Add(i);
-                }
-            }
-            return basisList.ToArray();
         }
 
         // public потому что надо его тестить
@@ -68,6 +49,54 @@ namespace MetOptLaba1
                 }
             }
             return nonlinearConstraints;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x0"></param>
+        /// <param name="nonlinearConstraints"></param>
+        /// <param name="noBasisForNow">Если пока нет заданного базиса(если мы 
+        /// собираемся использовать искусственный), то мы проведём обычный 
+        /// AverageGauss</param>
+        /// <returns></returns>
+        /// <exception cref="UserException"></exception>
+        public Fraction[,]
+            GetGaussHandledConstraintsAndBasisVariables(Fraction[] x0,
+            Fraction[,] nonlinearConstraints, 
+            bool noBasisForNow)
+        {
+            if (!noBasisForNow) {
+                if(getBasisVariablesCount(x0) != nonlinearConstraints.GetLength(0)) {
+                    throw new UserException("Количество элементов в базисе должно " +
+                        "равняться количеству ограничений");
+                }
+                if(!areConstraintsRightWithPoint(nonlinearConstraints, x0)) {
+                    throw new UserException("Предложенный базис не удовлетворяет ограничениям");
+                }
+            }
+            int[] basis = x0toBasis(x0);
+            Fraction[,] gaussHandledConstraints;
+            if (noBasisForNow) {
+                gaussHandledConstraints = GaussAverage.GetHandledMatrix(
+                    nonlinearConstraints);
+            }
+            else {
+                gaussHandledConstraints = GaussSpecial.GetHandledMatrix(
+                    nonlinearConstraints, basis);
+            }
+            return gaussHandledConstraints;
+        }
+
+        private int[] x0toBasis(Fraction[] x0)
+        {
+            List<int> basisList = new List<int>();
+            for(int i = 0; i < x0.Length; i++) {
+                if(x0[i].Numerator != 0) {
+                    basisList.Add(i);
+                }
+            }
+            return basisList.ToArray();
         }
 
         private Fraction[,] getConstraintsFromIdx(Fraction[,] constraints, int idx)
