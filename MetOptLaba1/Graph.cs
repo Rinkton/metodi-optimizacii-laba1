@@ -25,23 +25,12 @@ namespace MetOptLaba1
 
         public Graph()
         {
-            InitializeModel();
+            initializeModel();
             feasibleRegionPoints = new List<DataPoint>();
         }
 
         public void PlotSimplexProblem(Fraction[,] constraints, Fraction[] plotFunction)
         {
-            ClearPlot();
-
-            // TODO: Сделать поставку цел ф и ограничений корректное
-            // TODO: Дааа, надо добавлять ещё то, что -x1 <= 0 и -x2 <= 0
-            plotFunction = new Fraction[]
-            {
-                new Fraction(-1, 3),
-                new Fraction(-1, 3),
-                new Fraction(-4, 1),
-            };
-
             constraints = new Fraction[,] {
                 {
                     new Fraction(1, 3),
@@ -81,23 +70,41 @@ namespace MetOptLaba1
             };
             */
 
-            CalculateFeasibleRegion(constraints);
+            var someConstraintMin = Math.Max(constraints[0, 0].ToDouble(),
+                constraints[0, 1].ToDouble());
+            var someRightPart = constraints[0, 2].ToDouble();
+            // На 2 домножаем, чтобы оси были в 2 раза длиннее, чем нужно,
+            // так удобней
+            updateAxises((someRightPart / someConstraintMin) * 2);
 
-            PlotConstraints(constraints);
+            clearPlot();
+
+            // TODO: Сделать поставку цел ф и ограничений корректное
+            // TODO: Дааа, надо добавлять ещё то, что -x1 <= 0 и -x2 <= 0
+            plotFunction = new Fraction[]
+            {
+                new Fraction(-1, 3),
+                new Fraction(-1, 3),
+                new Fraction(-4, 1),
+            };
+
+            calculateFeasibleRegion(constraints);
+
+            plotConstraints(constraints);
 
             // Рисуем регион, если достаточно точек для этого было найдено
             if(feasibleRegionPoints.Count >= 3) {
-                PlotFeasibleRegion();
+                plotFeasibleRegion();
             }
 
-            PlotTargetFunction(plotFunction);
+            plotTargetFunction(plotFunction);
 
-            PlotGradientVector(plotFunction);
+            plotGradientVector(plotFunction);
 
             MyModel.InvalidatePlot(true);
         }
 
-        private void InitializeModel()
+        private void initializeModel()
         {
             MyModel = new PlotModel
             {
@@ -106,13 +113,28 @@ namespace MetOptLaba1
                 PlotAreaBackground = OxyColors.WhiteSmoke
             };
 
-            // TODO: отрегулить минимум и максимум, надо чтобы 10-ка эта адаптировалась
+            // Допустим 10 неважно, потом всё равно переназначим
+            updateAxises(10);
+
+            MyModel.Axes.Add(xAxis);
+            MyModel.Axes.Add(yAxis);
+        }
+
+        private void clearPlot()
+        {
+            MyModel.Series.Clear();
+            MyModel.Annotations.Clear();
+            feasibleRegionPoints.Clear();
+        }
+
+        private void updateAxises(double max)
+        {
             xAxis = new LinearAxis
             {
                 Position = AxisPosition.Bottom,
                 Title = "x1",
                 Minimum = 0,
-                Maximum = 10,
+                Maximum = max,
                 // Сеточка
                 MajorGridlineStyle = LineStyle.Solid,
                 MinorGridlineStyle = LineStyle.Dot,
@@ -125,25 +147,15 @@ namespace MetOptLaba1
                 Position = AxisPosition.Left,
                 Title = "x2",
                 Minimum = 0,
-                Maximum = 10,
+                Maximum = max,
                 MajorGridlineStyle = LineStyle.Solid,
                 MinorGridlineStyle = LineStyle.Dot,
                 MajorGridlineColor = OxyColors.LightGray,
                 MinorGridlineColor = OxyColors.LightGray
             };
-
-            MyModel.Axes.Add(xAxis);
-            MyModel.Axes.Add(yAxis);
         }
 
-        private void ClearPlot()
-        {
-            MyModel.Series.Clear();
-            MyModel.Annotations.Clear();
-            feasibleRegionPoints.Clear();
-        }
-
-        private void PlotConstraints(Fraction[,] constraints)
+        private void plotConstraints(Fraction[,] constraints)
         {
             for(int i = 0; i < constraints.GetLength(0); i++) {
                 var a1 = constraints[i, 0].ToDouble();
@@ -181,7 +193,7 @@ namespace MetOptLaba1
             }
         }
 
-        private void CalculateFeasibleRegion(Fraction[,] constraints)
+        private void calculateFeasibleRegion(Fraction[,] constraints)
         {
             var axesIntersections = new List<DataPoint>();
             var intersectionPoints = new List<DataPoint>();
@@ -212,7 +224,7 @@ namespace MetOptLaba1
             // Пересечение между ограничениями
             for(int i = 0; i < constraints.GetLength(0); i++) {
                 for(int j = i + 1; j < constraints.GetLength(0); j++) {
-                    var point = GetIntersection(
+                    var point = getIntersection(
                         constraints[i, 0].ToDouble(), constraints[i, 1].ToDouble(), constraints[i, 2].ToDouble(),
                         constraints[j, 0].ToDouble(), constraints[j, 1].ToDouble(), constraints[j, 2].ToDouble());
 
@@ -258,7 +270,7 @@ namespace MetOptLaba1
             }
         }
 
-        private DataPoint? GetIntersection(double a11, double a12, double b1, double a21, double a22, double b2)
+        private DataPoint? getIntersection(double a11, double a12, double b1, double a21, double a22, double b2)
         {
             double determinant = a11 * a22 - a12 * a21;
 
@@ -272,7 +284,7 @@ namespace MetOptLaba1
             return new DataPoint(x1, x2);
         }
 
-        private void PlotFeasibleRegion()
+        private void plotFeasibleRegion()
         {
             var polygonAnnotation = new PolygonAnnotation
             {
@@ -311,7 +323,7 @@ namespace MetOptLaba1
             MyModel.Series.Add(vertexSeries);
         }
 
-        private void PlotTargetFunction(Fraction[] target)
+        private void plotTargetFunction(Fraction[] target)
         {
             var c1 = target[0].ToDouble();
             var c2 = target[1].ToDouble();
@@ -339,7 +351,7 @@ namespace MetOptLaba1
             MyModel.Series.Add(targetSeries);
         }
 
-        private void PlotGradientVector(Fraction[] target)
+        private void plotGradientVector(Fraction[] target)
         {
             var c1 = target[0].ToDouble();
             var c2 = target[1].ToDouble();
