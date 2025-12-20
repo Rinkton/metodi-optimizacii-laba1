@@ -5,6 +5,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace MetOptLaba1
@@ -68,7 +69,7 @@ namespace MetOptLaba1
             DataGrid.Loaded += dataGrid_Loaded;
         }
 
-        public void PaintCells()
+        public void PaintCells(bool justAppeared)
         {
             bool isArtificialMethod = RealVariablesCount != 0;
             var (allowableColumnList, bestColumns) = 
@@ -86,6 +87,7 @@ namespace MetOptLaba1
                 return;
             }
 
+            int bestRow = -1, bestColumn = -1;
             for (int j = 0; j < allowableColumnList.Count; j++) {
                 // allowableRows не существует, там ток лучшие есчо
                 List<int> bestRows = new List<int>();
@@ -120,7 +122,19 @@ namespace MetOptLaba1
                         allowableElementData.best ?
                         Painter.bestElementColor : Painter.allowableElementColor
                         );
+                    if(allowableElementData.best) {
+                        bestRow = row;
+                        bestColumn = allowableColumnList[j];
+                    }
                 }
+            }
+            // Если автоматический режим решения
+            if(SetupObj.GetInstance().SolutionMode == 0 &&
+            // justAppeared - значит новое и самое главное последнее(имеющее наиб Idx)
+            bestRow != -1 && justAppeared) {
+                SimplexTable nextSimplexTable = getNextSimplexTable(
+                    bestRow, bestColumn);
+                MadeNewSimplexTable(nextSimplexTable, this, Grid);
             }
         }
 
@@ -344,7 +358,7 @@ namespace MetOptLaba1
 
         private void dataGrid_Loaded(object sender, RoutedEventArgs e)
         {
-            PaintCells();
+            PaintCells(true);
         }
 
         private void dataGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)

@@ -14,6 +14,7 @@ namespace MetOptLaba1
         public int OptimizationProblem = 0;
         public int FractionType = 0;
         public int SolutionType = 0;
+        public int SolutionMode = 0;
 
         private static SetupObj instance;
 

@@ -32,6 +32,11 @@
                                     <ComboBoxItem Content="Обыкновенные" />
                                     <ComboBoxItem Content="Десятичные" />
                                 </ComboBox>
+                                <Label Content="Режим решения: "/>
+                                <ComboBox x:Name="solutionModeComboBox" SelectedIndex="0" SelectionChanged="solutionModeComboBox_SelectionChanged">
+                                    <ComboBoxItem Content="Автоматический" />
+                                    <ComboBoxItem Content="Пошаговый" />
+                                </ComboBox>
                                 <Label Content="Метод решения: "/>
                                 <ComboBox x:Name="solutionTypeComboBox" SelectedIndex="0" SelectionChanged="solutionTypeComboBox_SelectionChanged">
                                     <ComboBoxItem Content="Метод искусственного базиса" />

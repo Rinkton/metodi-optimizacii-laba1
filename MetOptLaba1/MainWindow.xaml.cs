@@ -267,7 +267,7 @@ namespace MetOptLaba1
                         )
                     );
 
-                    // TODO: коэфы у перменных должны быть заминусованы
+                    // TODO: БЛЯ graphics_handled воще непонятно что за gaussHandledConstraints у него
                     targetFractionContentTable = SimplexTableContentFormer
                         .GetLastSimplexTableRow(
                         targetFractionContentTable, 
@@ -497,6 +497,7 @@ namespace MetOptLaba1
             optimizationProblemComboBox.SelectedIndex = SetupObj.GetInstance().OptimizationProblem;
             fractionTypeComboBox.SelectedIndex = SetupObj.GetInstance().FractionType;
             solutionTypeComboBox.SelectedIndex = SetupObj.GetInstance().SolutionType;
+            solutionModeComboBox.SelectedIndex = SetupObj.GetInstance().SolutionMode;
 
             applyingLoadedSetupObj = false;
         }
@@ -540,7 +541,7 @@ namespace MetOptLaba1
         {
             foreach(DataGrid simplexDataGrid in dataGrid.Children) {
                 SimplexTable simplexTable = simplexDataGrid.Tag as SimplexTable;
-                simplexTable.PaintCells();
+                simplexTable.PaintCells(false);
             }
         }
 
@@ -578,6 +579,11 @@ namespace MetOptLaba1
         {
             SetupObj.GetInstance().SolutionType = solutionTypeComboBox.SelectedIndex;
             updateBasisUi();
+        }
+
+        private void solutionModeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            SetupObj.GetInstance().SolutionMode = solutionModeComboBox.SelectedIndex;
         }
     }
 
