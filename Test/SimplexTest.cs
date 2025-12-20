@@ -119,7 +119,7 @@ namespace Test
                     new Fraction(1, 1)
                 },
             };
-            Fraction[] actual = simplex.getLastSimplexTableRow(target, matr, new int[] { 2, 3 });
+            Fraction[] actual = SimplexTableContentFormer.GetLastSimplexTableRow(target, matr, new int[] { 2, 3 });
             Fraction[] expected = new Fraction[] {
                 new Fraction(-1, 1),
                 new Fraction(16, 1),

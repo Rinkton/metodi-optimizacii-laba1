@@ -239,11 +239,14 @@ namespace MetOptLaba1
                 Fraction[,] nonlinearConstraints = simplexTableContentFormer.
                     getNonlinearConstraints(constraintFractionContentTable);
 
+                bool checkBasis = solutionTypeComboBox.SelectedIndex != 2 || 
+                    basisFractionContentTable.Length - 2 == 
+                    SetupObj.GetInstance().ConstraintAmount;
                 Fraction[,] gaussHandledConstraints =
                     simplexTableContentFormer
                     .GetGaussHandledConstraintsAndBasisVariables(
                         basisFractionContentTable, nonlinearConstraints,
-                        isArtificialBasis, solutionTypeComboBox.SelectedIndex != 2);
+                        isArtificialBasis, checkBasis);
 
                 int realVariablesCount = SetupObj.GetInstance().VariableAmount;
 
@@ -256,6 +259,20 @@ namespace MetOptLaba1
                 // Если графический метод решения
                 if(solutionTypeComboBox.SelectedIndex == 2) {
                     graphicsTab.Visibility = Visibility.Visible;
+
+                    int[] basis = SimplexTableContentFormer.X0toBasis(basisFractionContentTable);
+                    var basisVariablesExpressions = Utils.GetTableNegativeAllButNotConstant(
+                        Utils.GetMatrWithoutTheseIndices(
+                            gaussHandledConstraints, basis
+                        )
+                    );
+
+                    // TODO: коэфы у перменных должны быть заминусованы
+                    targetFractionContentTable = SimplexTableContentFormer
+                        .GetLastSimplexTableRow(
+                        targetFractionContentTable, 
+                        basisVariablesExpressions,
+                        basis);
 
                     if (SetupObj.GetInstance().VariableAmount > 2) {
                         gaussHandledConstraints = Utils.GetMatrWithoutTheseIndices(
@@ -548,7 +565,7 @@ namespace MetOptLaba1
                 return;
             }
             switch(solutionTypeComboBox.SelectedIndex) {
-                case 0:
+                case 1:
                     basisUi.Visibility = Visibility.Visible;
                     break;
                 default:

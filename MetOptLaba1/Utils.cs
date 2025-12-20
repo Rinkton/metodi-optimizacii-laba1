@@ -90,5 +90,46 @@ namespace MetOptLaba1
 
             return result;
         }
+
+        public static Fraction[] GetArrayWithoutTheseIndices(Fraction[] array, int[] indices)
+        {
+            Fraction[] result = new Fraction[array.Length - indices.Length];
+
+            int removeIndex = 0;
+            int newI = 0;
+            for(int i = 0; i < array.Length; i++) {
+                if(removeIndex >= indices.Length) {
+                    result[newI] = array[i];
+                    newI++;
+                    continue;
+                }
+                if(i == indices[removeIndex]) {
+                    removeIndex++;
+                    continue;
+                }
+
+                result[newI] = array[i];
+                newI++;
+            }
+
+            return result;
+        }
+
+        // По сути просто умножает на -1 все столбцы, кроме последнего
+        public static Fraction[,] GetTableNegativeAllButNotConstant(Fraction[,] fractionTable)
+        {
+            Fraction[,] result = new Fraction[
+                fractionTable.GetLength(0),
+                fractionTable.GetLength(1)];
+            for(int i = 0; i < fractionTable.GetLength(0); i++) {
+                for(int j = 0; j < fractionTable.GetLength(1); j++) {
+                    result[i, j] = fractionTable[i, j];
+                    if(j != fractionTable.GetLength(1) - 1) {
+                        result[i, j] *= new Fraction(-1, 1);
+                    }
+                }
+            }
+            return result;
+        }
     }
 }

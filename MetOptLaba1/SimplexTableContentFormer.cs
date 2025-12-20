@@ -25,7 +25,7 @@ namespace MetOptLaba1
             Fraction[] x0
             )
         {
-            int[] basis = x0toBasis(x0);
+            int[] basis = X0toBasis(x0);
             Fraction[,] simplexTableContent = getSimplexTable(target, gaussHandledConstraints, basis);
             return simplexTableContent;
         }
@@ -75,7 +75,7 @@ namespace MetOptLaba1
                     throw new UserException("Предложенный базис не удовлетворяет ограничениям");
                 }
             }
-            int[] basis = x0toBasis(x0);
+            int[] basis = X0toBasis(x0);
             Fraction[,] gaussHandledConstraints;
             if (noBasisForNow || !checkBasis) {
                 gaussHandledConstraints = GaussAverage.GetHandledMatrix(
@@ -88,7 +88,7 @@ namespace MetOptLaba1
             return gaussHandledConstraints;
         }
 
-        private int[] x0toBasis(Fraction[] x0)
+        public static int[] X0toBasis(Fraction[] x0)
         {
             List<int> basisList = new List<int>();
             for(int i = 0; i < x0.Length; i++) {
@@ -211,10 +211,11 @@ namespace MetOptLaba1
         {
             Fraction[,] simplexTableWithoutLastRow = getSimplexTableWithoutLastRow(
                 gaussHandledConstraints, basis);
-            Fraction[,] basisVariablesExpressions = getBasisVariablesExpressions(
+            Fraction[,] basisVariablesExpressions = Utils.GetTableNegativeAllButNotConstant(
                 simplexTableWithoutLastRow);
-            Fraction[] lastSimplexTableRow = getLastSimplexTableRow(
-                target, getBasisVariablesExpressions(simplexTableWithoutLastRow), basis);
+            Fraction[] lastSimplexTableRow = GetLastSimplexTableRow(
+                target, Utils.GetTableNegativeAllButNotConstant(
+                simplexTableWithoutLastRow), basis);
             Fraction[,] simplexTable = new Fraction[simplexTableWithoutLastRow.GetLength(0) + 1, 
                 simplexTableWithoutLastRow.GetLength(1)];
             for (int i = 0; i < simplexTableWithoutLastRow.GetLength(0); i++) {
@@ -222,7 +223,7 @@ namespace MetOptLaba1
                     simplexTable[i, j] = simplexTableWithoutLastRow[i, j];
                 }
             }
-            for (int i = 0; i <  lastSimplexTableRow.Length; i++) {
+            for (int i = 0; i < lastSimplexTableRow.Length; i++) {
                 simplexTable[simplexTable.GetLength(0)-1, i] = lastSimplexTableRow[i];
             }
             return simplexTable;
@@ -233,32 +234,12 @@ namespace MetOptLaba1
             return Utils.GetMatrWithoutTheseIndices(gaussHandledConstraints, basis);
         }
 
-        
-
-        // По сути просто делает все коэффициенты отрицательными(но не константы!)
-        public Fraction[,] getBasisVariablesExpressions(Fraction[,] simplexTableWithoutLastRow)
-        {
-            Fraction[,] basisVariablesExpressions = new Fraction[
-                simplexTableWithoutLastRow.GetLength(0), 
-                simplexTableWithoutLastRow.GetLength(1)];
-            for(int i = 0; i < simplexTableWithoutLastRow.GetLength(0); i++) {
-                for(int j = 0; j < simplexTableWithoutLastRow.GetLength(1); j++) {
-                    basisVariablesExpressions[i, j] = simplexTableWithoutLastRow[i, j];
-                    if (j != simplexTableWithoutLastRow.GetLength(1)-1) {
-                        basisVariablesExpressions[i, j] *= new Fraction(-1, 1);
-                    }
-                }
-            }
-            return basisVariablesExpressions;
-        }
-
-        // public чтоб тестить
-        public Fraction[] getLastSimplexTableRow(
+        public static Fraction[] GetLastSimplexTableRow(
             Fraction[] target,
             Fraction[,] basisVariablesExpressions, 
             int[] basis)
         {
-            Fraction[] targetWithoutBasis = getArrayWithoutTheseIndices(target, basis);
+            Fraction[] targetWithoutBasis = Utils.GetArrayWithoutTheseIndices(target, basis);
             for (int i = 0; i < basis.Length; i++) {
                 int curBasis = basis[i];
                 Fraction mult = target[curBasis];
@@ -269,30 +250,6 @@ namespace MetOptLaba1
             // Умножаем на -1 константу
             targetWithoutBasis[^1] *= new Fraction(-1, 1);
             return targetWithoutBasis;
-        }
-
-        private Fraction[] getArrayWithoutTheseIndices(Fraction[] array, int[] indices)
-        {
-            Fraction[] result = new Fraction[array.Length - indices.Length];
-
-            int removeIndex = 0;
-            int newI = 0;
-            for(int i = 0; i < array.Length; i++) {
-                if(removeIndex >= indices.Length) {
-                    result[newI] = array[i];
-                    newI++;
-                    continue;
-                }
-                if(i == indices[removeIndex]) {
-                    removeIndex++;
-                    continue;
-                }
-
-                result[newI] = array[i];
-                newI++;
-            }
-
-            return result;
         }
 
         public DataTable Step(DataTable dt)
