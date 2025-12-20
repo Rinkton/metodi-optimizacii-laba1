@@ -18,64 +18,24 @@ namespace MetOptLaba1
     public class Graph
     {
         public PlotModel MyModel { get; private set; }
-        private List<DataPoint> _feasibleRegionPoints;
-        private LinearAxis _xAxis;
-        private LinearAxis _yAxis;
+
+        private List<DataPoint> feasibleRegionPoints;
+        private LinearAxis xAxis;
+        private LinearAxis yAxis;
 
         public Graph()
         {
             InitializeModel();
-            _feasibleRegionPoints = new List<DataPoint>();
+            feasibleRegionPoints = new List<DataPoint>();
         }
 
-        private void InitializeModel()
-        {
-            MyModel = new PlotModel
-            {
-                Title = "Simplex Method Visualization",
-                PlotMargins = new OxyThickness(60, 60, 60, 60),
-                Background = OxyColors.White,
-                PlotAreaBackground = OxyColors.WhiteSmoke
-            };
-
-            _xAxis = new LinearAxis
-            {
-                Position = AxisPosition.Bottom,
-                Title = "x₁",
-                Minimum = 0,
-                Maximum = 10,
-                MajorGridlineStyle = LineStyle.Solid,
-                MinorGridlineStyle = LineStyle.Dot,
-                MajorGridlineColor = OxyColors.LightGray,
-                MinorGridlineColor = OxyColors.LightGray,
-            };
-
-            _yAxis = new LinearAxis
-            {
-                Position = AxisPosition.Left,
-                Title = "x₂",
-                Minimum = 0,
-                Maximum = 10,
-                MajorGridlineStyle = LineStyle.Solid,
-                MinorGridlineStyle = LineStyle.Dot,
-                MajorGridlineColor = OxyColors.LightGray,
-                MinorGridlineColor = OxyColors.LightGray
-            };
-
-            MyModel.Axes.Add(_xAxis);
-            MyModel.Axes.Add(_yAxis);
-        }
-
-        public void PlotSimplexProblem(Fraction[,] constraints, Fraction[] objectiveFunction)
+        public void PlotSimplexProblem(Fraction[,] constraints, Fraction[] plotFunction)
         {
             ClearPlot();
 
-            // TODO: Почему не так как надо работает
-            // TODO: А вектор-градиент то норм?
-            // TODO: Понять, отрефакторить код
             // TODO: Сделать поставку цел ф и ограничений корректное
             // TODO: Дааа, надо добавлять ещё то, что -x1 <= 0 и -x2 <= 0
-            objectiveFunction = new Fraction[]
+            plotFunction = new Fraction[]
             {
                 new Fraction(-1, 3),
                 new Fraction(-1, 3),
@@ -105,7 +65,7 @@ namespace MetOptLaba1
                 },
             };
             /*
-            objectiveFunction = new Fraction[]
+            targetFunction = new Fraction[]
             {
                 new Fraction(2, 1),
                 new Fraction(2, 1),
@@ -121,31 +81,66 @@ namespace MetOptLaba1
             };
             */
 
-            // 1. Calculate feasible region points
             CalculateFeasibleRegion(constraints);
 
-            // 2. Plot constraint lines
             PlotConstraints(constraints);
 
-            // 3. Plot feasible region (if bounded)
-            if(_feasibleRegionPoints.Count >= 3) {
+            // Рисуем регион, если достаточно точек для этого было найдено
+            if(feasibleRegionPoints.Count >= 3) {
                 PlotFeasibleRegion();
             }
 
-            // 4. Plot objective function line
-            PlotObjectiveFunction(objectiveFunction);
+            PlotTargetFunction(plotFunction);
 
-            // 5. Plot gradient vector
-            PlotGradientVector(objectiveFunction);
+            PlotGradientVector(plotFunction);
 
             MyModel.InvalidatePlot(true);
+        }
+
+        private void InitializeModel()
+        {
+            MyModel = new PlotModel
+            {
+                PlotMargins = new OxyThickness(60, 60, 60, 60),
+                Background = OxyColors.White,
+                PlotAreaBackground = OxyColors.WhiteSmoke
+            };
+
+            // TODO: отрегулить минимум и максимум, надо чтобы 10-ка эта адаптировалась
+            xAxis = new LinearAxis
+            {
+                Position = AxisPosition.Bottom,
+                Title = "x1",
+                Minimum = 0,
+                Maximum = 10,
+                // Сеточка
+                MajorGridlineStyle = LineStyle.Solid,
+                MinorGridlineStyle = LineStyle.Dot,
+                MajorGridlineColor = OxyColors.LightGray,
+                MinorGridlineColor = OxyColors.LightGray,
+            };
+
+            yAxis = new LinearAxis
+            {
+                Position = AxisPosition.Left,
+                Title = "x2",
+                Minimum = 0,
+                Maximum = 10,
+                MajorGridlineStyle = LineStyle.Solid,
+                MinorGridlineStyle = LineStyle.Dot,
+                MajorGridlineColor = OxyColors.LightGray,
+                MinorGridlineColor = OxyColors.LightGray
+            };
+
+            MyModel.Axes.Add(xAxis);
+            MyModel.Axes.Add(yAxis);
         }
 
         private void ClearPlot()
         {
             MyModel.Series.Clear();
             MyModel.Annotations.Clear();
-            _feasibleRegionPoints.Clear();
+            feasibleRegionPoints.Clear();
         }
 
         private void PlotConstraints(Fraction[,] constraints)
@@ -157,31 +152,28 @@ namespace MetOptLaba1
 
                 var lineSeries = new LineSeries
                 {
-                    Title = $"Constraint {i + 1}: {a1}x₁ + {a2}x₂ ≤ {b}",
+                    Title = $"Ограничение {i + 1}: {a1}x1 + {a2}x2 ≤ {b}",
                     Color = OxyColors.Blue,
                     StrokeThickness = 2,
                     LineStyle = LineStyle.Solid
                 };
 
-                // For constraint: a1*x1 + a2*x2 = b
-                // We need two points to draw the line
-
-                if(Math.Abs(a2) > 1e-10) // Not vertical line
+                // Если это нормальная(не параллельная осям) кривая
+                if(Math.Abs(a2) > 1e-10)
                 {
-                    // Solve for x2: x2 = (b - a1*x1)/a2
-                    for(double x1 = _xAxis.Minimum; x1 <= _xAxis.Maximum; x1 += (_xAxis.Maximum - _xAxis.Minimum) / 10) {
+                    for(double x1 = xAxis.Minimum; x1 <= xAxis.Maximum; x1 += (xAxis.Maximum - xAxis.Minimum) / 10) {
                         double x2 = (b - a1 * x1) / a2;
-                        if(x2 >= _yAxis.Minimum && x2 <= _yAxis.Maximum) {
+                        if(x2 >= yAxis.Minimum && x2 <= yAxis.Maximum) {
                             lineSeries.Points.Add(new DataPoint(x1, x2));
                         }
                     }
                 }
-                else if(Math.Abs(a1) > 1e-10) // Vertical line: a1*x1 = b
+                else if(Math.Abs(a1) > 1e-10)
                 {
                     double x1 = b / a1;
-                    if(x1 >= _xAxis.Minimum && x1 <= _xAxis.Maximum) {
-                        lineSeries.Points.Add(new DataPoint(x1, _yAxis.Minimum));
-                        lineSeries.Points.Add(new DataPoint(x1, _yAxis.Maximum));
+                    if(x1 >= xAxis.Minimum && x1 <= xAxis.Maximum) {
+                        lineSeries.Points.Add(new DataPoint(x1, yAxis.Minimum));
+                        lineSeries.Points.Add(new DataPoint(x1, yAxis.Maximum));
                     }
                 }
 
@@ -191,17 +183,16 @@ namespace MetOptLaba1
 
         private void CalculateFeasibleRegion(Fraction[,] constraints)
         {
-            // Calculate intersection points of all constraints
-            var intersectionPoints = new List<DataPoint>();
             var axesIntersections = new List<DataPoint>();
+            var intersectionPoints = new List<DataPoint>();
 
-            // Get intersection with axes for each constraint
+            // Пересечения сосями
             for(int i = 0; i < constraints.GetLength(0); i++) {
                 var a1 = constraints[i, 0].ToDouble();
                 var a2 = constraints[i, 1].ToDouble();
                 var b = constraints[i, 2].ToDouble();
 
-                // Intersection with x-axis (x2 = 0)
+                // С осью X
                 if(Math.Abs(a1) > 1e-10) {
                     double x1 = b / a1;
                     if(x1 >= 0) {
@@ -209,7 +200,7 @@ namespace MetOptLaba1
                     }
                 }
 
-                // Intersection with y-axis (x1 = 0)
+                // С осью Y
                 if(Math.Abs(a2) > 1e-10) {
                     double x2 = b / a2;
                     if(x2 >= 0) {
@@ -218,7 +209,7 @@ namespace MetOptLaba1
                 }
             }
 
-            // Intersection between constraints
+            // Пересечение между ограничениями
             for(int i = 0; i < constraints.GetLength(0); i++) {
                 for(int j = i + 1; j < constraints.GetLength(0); j++) {
                     var point = GetIntersection(
@@ -231,10 +222,10 @@ namespace MetOptLaba1
                 }
             }
 
-            // Combine all candidate points
-            var allPoints = intersectionPoints.Concat(axesIntersections).Distinct().ToList();
+            // Собираем все уникальные точки пересечения в один список
+            List<DataPoint> allPoints = intersectionPoints.Concat(axesIntersections).Distinct().ToList();
 
-            // Filter points that satisfy ALL constraints
+            // Ищем те точки, которые удовлетворяют всем ограниченькам
             foreach(var point in allPoints) {
                 bool isFeasible = true;
 
@@ -243,7 +234,7 @@ namespace MetOptLaba1
                     var a2 = constraints[i, 1].ToDouble();
                     var b = constraints[i, 2].ToDouble();
 
-                    if(a1 * point.X + a2 * point.Y > b + 1e-10) // With small tolerance
+                    if(a1 * point.X + a2 * point.Y >= b + 1e-10)
                     {
                         isFeasible = false;
                         break;
@@ -251,63 +242,61 @@ namespace MetOptLaba1
                 }
 
                 if(isFeasible && point.X >= 0 && point.Y >= 0) {
-                    _feasibleRegionPoints.Add(point);
+                    feasibleRegionPoints.Add(point);
                 }
             }
 
-            // Sort points for polygon drawing (convex hull or simple sort by angle)
-            if(_feasibleRegionPoints.Count > 0) {
+            // Отсортируем их с помощью центроида(шо це?)
+            if(feasibleRegionPoints.Count > 0) {
                 var centroid = new DataPoint(
-                    _feasibleRegionPoints.Average(p => p.X),
-                    _feasibleRegionPoints.Average(p => p.Y));
+                    feasibleRegionPoints.Average(p => p.X),
+                    feasibleRegionPoints.Average(p => p.Y));
 
-                _feasibleRegionPoints = _feasibleRegionPoints
+                feasibleRegionPoints = feasibleRegionPoints
                     .OrderBy(p => Math.Atan2(p.Y - centroid.Y, p.X - centroid.X))
                     .ToList();
             }
         }
 
-        private DataPoint? GetIntersection(double a1, double a2, double b1, double a3, double a4, double b2)
+        private DataPoint? GetIntersection(double a11, double a12, double b1, double a21, double a22, double b2)
         {
-            double determinant = a1 * a4 - a2 * a3;
+            double determinant = a11 * a22 - a12 * a21;
 
             if(Math.Abs(determinant) < 1e-10)
-                return null; // Parallel lines
+                return null; // Знач параллельны
 
-            double x1 = (b1 * a4 - a2 * b2) / determinant;
-            double x2 = (a1 * b2 - b1 * a3) / determinant;
+            // Красивенькие формулы ^_^
+            double x1 = (b1 * a22 - a12 * b2) / determinant;
+            double x2 = (a11 * b2 - b1 * a21) / determinant;
 
             return new DataPoint(x1, x2);
         }
 
         private void PlotFeasibleRegion()
         {
-            // Create a polygon annotation - CORRECTED VERSION
             var polygonAnnotation = new PolygonAnnotation
             {
-                Fill = OxyColor.FromArgb(100, 144, 238, 144), // Light green with transparency
+                Fill = OxyColor.FromArgb(100, 144, 238, 144),
                 Stroke = OxyColors.DarkGreen,
                 StrokeThickness = 1,
                 LineStyle = LineStyle.Solid
             };
 
-            // Add points to the polygon
-            foreach(var point in _feasibleRegionPoints) {
+            foreach(var point in feasibleRegionPoints) {
                 polygonAnnotation.Points.Add(point);
             }
 
-            // Close the polygon if not already closed
-            if(_feasibleRegionPoints.Count > 1 &&
-                !_feasibleRegionPoints.First().Equals(_feasibleRegionPoints.Last())) {
-                polygonAnnotation.Points.Add(_feasibleRegionPoints.First());
+            // Точка конца и точка начало должны быть одинаковы
+            if(feasibleRegionPoints.Count > 1 &&
+                !feasibleRegionPoints.First().Equals(feasibleRegionPoints.Last())) {
+                polygonAnnotation.Points.Add(feasibleRegionPoints.First());
             }
 
             MyModel.Annotations.Add(polygonAnnotation);
 
-            // Add markers for vertices
             var vertexSeries = new ScatterSeries
             {
-                Title = "Feasible Vertices",
+                Title = "Допустимые вершины",
                 MarkerType = MarkerType.Circle,
                 MarkerSize = 6,
                 MarkerFill = OxyColors.Red,
@@ -315,55 +304,55 @@ namespace MetOptLaba1
                 MarkerStrokeThickness = 1
             };
 
-            foreach(var point in _feasibleRegionPoints) {
+            foreach(var point in feasibleRegionPoints) {
                 vertexSeries.Points.Add(new ScatterPoint(point.X, point.Y));
             }
 
             MyModel.Series.Add(vertexSeries);
         }
 
-        private void PlotObjectiveFunction(Fraction[] objective)
+        private void PlotTargetFunction(Fraction[] target)
         {
-            var c1 = objective[0].ToDouble();
-            var c2 = objective[1].ToDouble();
-            var c = objective[2].ToDouble();
+            var c1 = target[0].ToDouble();
+            var c2 = target[1].ToDouble();
+            var c = target[2].ToDouble();
 
-            var objectiveSeries = new LineSeries
+            var targetSeries = new LineSeries
             {
-                Title = $"Objective: {c1}x₁ + {c2}x₂ = {c}",
+                Title = $"Целевая функция: {c1}x1 + {c2}x2 = {c}",
                 Color = OxyColors.Red,
                 StrokeThickness = 3,
                 LineStyle = LineStyle.Dash,
                 Dashes = new double[] { 4, 4 }
             };
 
-            // Plot objective function line
+            // Делаем линию цел. ф.
             if(Math.Abs(c2) > 1e-10) {
-                for(double x1 = _xAxis.Minimum; x1 <= _xAxis.Maximum; x1 += (_xAxis.Maximum - _xAxis.Minimum) / 20) {
+                for(double x1 = xAxis.Minimum; x1 <= xAxis.Maximum; x1 += (xAxis.Maximum - xAxis.Minimum) / 20) {
                     double x2 = (c - c1 * x1) / c2;
-                    if(x2 >= _yAxis.Minimum && x2 <= _yAxis.Maximum) {
-                        objectiveSeries.Points.Add(new DataPoint(x1, x2));
+                    if(x2 >= yAxis.Minimum && x2 <= yAxis.Maximum) {
+                        targetSeries.Points.Add(new DataPoint(x1, x2));
                     }
                 }
             }
 
-            MyModel.Series.Add(objectiveSeries);
+            MyModel.Series.Add(targetSeries);
         }
 
-        private void PlotGradientVector(Fraction[] objective)
+        private void PlotGradientVector(Fraction[] target)
         {
-            var c1 = objective[0].ToDouble();
-            var c2 = objective[1].ToDouble();
+            var c1 = target[0].ToDouble();
+            var c2 = target[1].ToDouble();
 
-            // Calculate center of feasible region for vector start point
-            double centerX = _feasibleRegionPoints.Count > 0 ?
-                _feasibleRegionPoints.Average(p => p.X) :
-                (_xAxis.Maximum + _xAxis.Minimum) / 2;
-            double centerY = _feasibleRegionPoints.Count > 0 ?
-                _feasibleRegionPoints.Average(p => p.Y) :
-                (_yAxis.Maximum + _yAxis.Minimum) / 2;
+            // Будем рисовать градиент-вектор из центра региона
+            double centerX = feasibleRegionPoints.Count > 0 ?
+                feasibleRegionPoints.Average(p => p.X) :
+                (xAxis.Maximum + xAxis.Minimum) / 2;
+            double centerY = feasibleRegionPoints.Count > 0 ?
+                feasibleRegionPoints.Average(p => p.Y) :
+                (yAxis.Maximum + yAxis.Minimum) / 2;
 
-            // Scale the gradient for visualization
+            // Отскейлим его чутка
             double scale = 2.0;
             double endX = centerX + c1 * scale;
             double endY = centerY + c2 * scale;
@@ -376,14 +365,13 @@ namespace MetOptLaba1
                 StrokeThickness = 3,
                 HeadLength = 10,
                 HeadWidth = 6,
-                Text = "Gradient",
                 TextColor = OxyColors.DarkOrange,
                 TextPosition = new DataPoint(endX + 0.5, endY + 0.5)
             };
 
             MyModel.Annotations.Add(arrowAnnotation);
 
-            // Add a point at the start of the vector
+            // Точка в начале кектора
             var startPointSeries = new ScatterSeries
             {
                 MarkerType = MarkerType.Circle,
@@ -393,15 +381,6 @@ namespace MetOptLaba1
             startPointSeries.Points.Add(new ScatterPoint(centerX, centerY));
 
             MyModel.Series.Add(startPointSeries);
-        }
-
-        public void UpdateAxesRange(double xMin, double xMax, double yMin, double yMax)
-        {
-            _xAxis.Minimum = xMin;
-            _xAxis.Maximum = xMax;
-            _yAxis.Minimum = yMin;
-            _yAxis.Maximum = yMax;
-            MyModel.InvalidatePlot(true);
         }
     }
 }
