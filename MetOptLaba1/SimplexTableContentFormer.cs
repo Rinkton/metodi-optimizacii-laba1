@@ -57,16 +57,16 @@ namespace MetOptLaba1
         /// <param name="x0"></param>
         /// <param name="nonlinearConstraints"></param>
         /// <param name="noBasisForNow">Если пока нет заданного базиса(если мы 
-        /// собираемся использовать искусственный), то мы проведём обычный 
+        /// собираемся использовать искусственный или графический метод), то мы проведём обычный 
         /// AverageGauss</param>
         /// <returns></returns>
         /// <exception cref="UserException"></exception>
         public Fraction[,]
             GetGaussHandledConstraintsAndBasisVariables(Fraction[] x0,
             Fraction[,] nonlinearConstraints, 
-            bool noBasisForNow)
+            bool noBasisForNow, bool checkBasis)
         {
-            if (!noBasisForNow) {
+            if (!noBasisForNow && checkBasis) {
                 if(getBasisVariablesCount(x0) != nonlinearConstraints.GetLength(0)) {
                     throw new UserException("Количество элементов в базисе должно " +
                         "равняться количеству ограничений");
@@ -77,7 +77,7 @@ namespace MetOptLaba1
             }
             int[] basis = x0toBasis(x0);
             Fraction[,] gaussHandledConstraints;
-            if (noBasisForNow) {
+            if (noBasisForNow || !checkBasis) {
                 gaussHandledConstraints = GaussAverage.GetHandledMatrix(
                     nonlinearConstraints);
             }
@@ -230,39 +230,10 @@ namespace MetOptLaba1
 
         private Fraction[,] getSimplexTableWithoutLastRow(Fraction[,] gaussHandledConstraints, int[] basis)
         {
-            return getMatrWithoutTheseIndices(gaussHandledConstraints, basis);
+            return Utils.GetMatrWithoutTheseIndices(gaussHandledConstraints, basis);
         }
 
-        private Fraction[,] getMatrWithoutTheseIndices(Fraction[,] matr, int[] indices)
-        {
-            int rows = matr.GetLength(0);
-            int cols = matr.GetLength(1);
-            int newCols = cols - indices.Length;
-
-            Fraction[,] result = new Fraction[rows, newCols];
-
-            for(int row = 0; row < rows; row++) {
-                int newCol = 0;
-                int removeIndex = 0;
-
-                for(int col = 0; col < cols; col++) {
-                    if (removeIndex >= indices.Length) {
-                        result[row, newCol] = matr[row, col];
-                        newCol++;
-                        continue;
-                    }
-                    if(col == indices[removeIndex]) {
-                        removeIndex++;
-                        continue;
-                    }
-
-                    result[row, newCol] = matr[row, col];
-                    newCol++;
-                }
-            }
-
-            return result;
-        }
+        
 
         // По сути просто делает все коэффициенты отрицательными(но не константы!)
         public Fraction[,] getBasisVariablesExpressions(Fraction[,] simplexTableWithoutLastRow)

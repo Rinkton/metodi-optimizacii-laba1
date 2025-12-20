@@ -52,14 +52,14 @@ namespace MetOptLaba1
                 return;
             }
             try {
-                SetupObj.GetInstance().variableAmount = int.Parse(variableAmount.Text);
-                SetupObj.GetInstance().constraintAmount = int.Parse(constraintAmount.Text);
+                SetupObj.GetInstance().VariableAmount = int.Parse(variableAmount.Text);
+                SetupObj.GetInstance().ConstraintAmount = int.Parse(constraintAmount.Text);
                 SetupObj.GetInstance().UpdateTables();
-                int columnCount = SetupObj.GetInstance().variableAmount;
-                int rowCount = SetupObj.GetInstance().constraintAmount;
+                int columnCount = SetupObj.GetInstance().VariableAmount;
+                int rowCount = SetupObj.GetInstance().ConstraintAmount;
                 updateTargetTable(columnCount);
                 updateConstraintTable(columnCount, rowCount);
-                updateBasisTable(SetupObj.GetInstance().variableAmount);
+                updateBasisTable(SetupObj.GetInstance().VariableAmount);
             }
             catch(FormatException ex) {
                 return;
@@ -77,7 +77,7 @@ namespace MetOptLaba1
 
             var row = dt.NewRow();
             for(int i = 0; i < variableAmount; i++) {
-                row[$"x{i + 1}"] = SetupObj.GetInstance().basisStringTable[i];
+                row[$"x{i + 1}"] = SetupObj.GetInstance().BasisStringTable[i];
             }
             dt.Rows.Add(row);
 
@@ -97,9 +97,9 @@ namespace MetOptLaba1
 
             var row = dt.NewRow();
             for(int i = 0; i < columnCount; i++) {
-                row[$"c{i+1}"] = SetupObj.GetInstance().targetStringTable[i];
+                row[$"c{i+1}"] = SetupObj.GetInstance().TargetStringTable[i];
             }
-            row[$"c"] = SetupObj.GetInstance().targetStringTable[SetupObj.GetInstance().targetStringTable.Length - 1];
+            row[$"c"] = SetupObj.GetInstance().TargetStringTable[SetupObj.GetInstance().TargetStringTable.Length - 1];
             dt.Rows.Add(row);
 
             targetGrid.ItemsSource = dt.DefaultView;
@@ -124,10 +124,10 @@ namespace MetOptLaba1
             for(int j = 0; j < rowCount; j++) {
                 var row = dt.NewRow();
                 for(int i = 0; i < columnCount; i++) {
-                    row[$"a{i+1}"] = SetupObj.GetInstance().constraintStringTable[j, i];
+                    row[$"a{i+1}"] = SetupObj.GetInstance().ConstraintStringTable[j, i];
                 }
-                row[$"b"] = SetupObj.GetInstance().constraintStringTable[j, 
-                    SetupObj.GetInstance().constraintStringTable.GetLength(1) - 1];
+                row[$"b"] = SetupObj.GetInstance().ConstraintStringTable[j, 
+                    SetupObj.GetInstance().ConstraintStringTable.GetLength(1) - 1];
                 dt.Rows.Add(row);
             }
 
@@ -201,8 +201,8 @@ namespace MetOptLaba1
             string[,] constraintStringContentTable = getDataGridContentTable(constraintGrid);
             string[,] basisString2DContentTable = getDataGridContentTable(basisGrid);
             try {
-                if(SetupObj.GetInstance().variableAmount == 0 ||
-                    SetupObj.GetInstance().constraintAmount == 0) {
+                if(SetupObj.GetInstance().VariableAmount == 0 ||
+                    SetupObj.GetInstance().ConstraintAmount == 0) {
                     throw new UserException("Некорректная задача. Количество " +
                         "переменных или количество ограничений равно 0");
                 }
@@ -221,14 +221,20 @@ namespace MetOptLaba1
                 }
 
                 Fraction[] basisFractionContentTable = new Fraction[1];
-                if(!isArtificialBasis) {
+                // Если базис заданный
+                if(solutionTypeComboBox.SelectedIndex == 1) {
                     Fraction[,] basisFraction2DContentTable =
                         getFractionContentTable(basisString2DContentTable);
                     basisFractionContentTable =
                         Utils.GetArray2DFirstRow(basisFraction2DContentTable);
                 }
+                // А вот если мы решаем графическим двумерным...
+                else if (solutionTypeComboBox.SelectedIndex == 2) {
+                    basisFractionContentTable = Graph.GetBasis(
+                        SetupObj.GetInstance().VariableAmount);
+                }
 
-                SimplexTableContentFormer simplexTableContentFormer = new SimplexTableContentFormer();
+                    SimplexTableContentFormer simplexTableContentFormer = new SimplexTableContentFormer();
                 // НЕ ИСПОЛЬЗУЙ это в расчётах
                 Fraction[,] nonlinearConstraints = simplexTableContentFormer.
                     getNonlinearConstraints(constraintFractionContentTable);
@@ -237,9 +243,9 @@ namespace MetOptLaba1
                     simplexTableContentFormer
                     .GetGaussHandledConstraintsAndBasisVariables(
                         basisFractionContentTable, nonlinearConstraints,
-                        isArtificialBasis);
+                        isArtificialBasis, solutionTypeComboBox.SelectedIndex != 2);
 
-                int realVariablesCount = SetupObj.GetInstance().variableAmount;
+                int realVariablesCount = SetupObj.GetInstance().VariableAmount;
 
                 if(isArtificialBasis) {
                     (targetFractionContentTable, gaussHandledConstraints,
@@ -250,6 +256,20 @@ namespace MetOptLaba1
                 // Если графический метод решения
                 if(solutionTypeComboBox.SelectedIndex == 2) {
                     graphicsTab.Visibility = Visibility.Visible;
+
+                    if (SetupObj.GetInstance().VariableAmount > 2) {
+                        gaussHandledConstraints = Utils.GetMatrWithoutTheseIndices(
+                            gaussHandledConstraints, Enumerable.Range(2, 
+                            SetupObj.GetInstance().VariableAmount - 2).ToArray());
+                    }
+                    if (gaussHandledConstraints.GetLength(1) != 3) {
+                        throw new UserException("Невозможно решить графическим" +
+                            "двумерным методом");
+                    }
+
+                    Graph graph = new Graph();
+                    graphView.Model = graph.MyModel;
+                    graph.PlotSimplexProblem(targetFractionContentTable, gaussHandledConstraints);
                 }
                 // Иначе чё-то с симплексом
                 else {
@@ -455,11 +475,11 @@ namespace MetOptLaba1
         {
             applyingLoadedSetupObj = true;
 
-            variableAmount.Text = SetupObj.GetInstance().variableAmount.ToString();
-            constraintAmount.Text = SetupObj.GetInstance().constraintAmount.ToString();
-            optimizationProblemComboBox.SelectedIndex = SetupObj.GetInstance().optimizationProblem;
-            fractionTypeComboBox.SelectedIndex = SetupObj.GetInstance().fractionType;
-            solutionTypeComboBox.SelectedIndex = SetupObj.GetInstance().solutionType;
+            variableAmount.Text = SetupObj.GetInstance().VariableAmount.ToString();
+            constraintAmount.Text = SetupObj.GetInstance().ConstraintAmount.ToString();
+            optimizationProblemComboBox.SelectedIndex = SetupObj.GetInstance().OptimizationProblem;
+            fractionTypeComboBox.SelectedIndex = SetupObj.GetInstance().FractionType;
+            solutionTypeComboBox.SelectedIndex = SetupObj.GetInstance().SolutionType;
 
             applyingLoadedSetupObj = false;
         }
@@ -472,13 +492,13 @@ namespace MetOptLaba1
         private void updateStringTables()
         {
             string[,] targetString2DContentTable = getDataGridContentTable(targetGrid);
-            SetupObj.GetInstance().targetStringTable = Utils.GetArray2DFirstRow(targetString2DContentTable);
+            SetupObj.GetInstance().TargetStringTable = Utils.GetArray2DFirstRow(targetString2DContentTable);
 
             string[,] constraintStringContentTable = getDataGridContentTable(constraintGrid);
-            SetupObj.GetInstance().constraintStringTable = constraintStringContentTable;
+            SetupObj.GetInstance().ConstraintStringTable = constraintStringContentTable;
 
             string[,] basisString2DContentTable = getDataGridContentTable(basisGrid);
-            SetupObj.GetInstance().basisStringTable = Utils.GetArray2DFirstRow(basisString2DContentTable);
+            SetupObj.GetInstance().BasisStringTable = Utils.GetArray2DFirstRow(basisString2DContentTable);
         }
 
         private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -495,9 +515,6 @@ namespace MetOptLaba1
                     gridPaintCells(artificialSimplexGrid);
                     break;
                 case "Графический двумерный метод":
-                    Graph graph = new Graph();
-                    graphView.Model = graph.MyModel;
-                    graph.PlotSimplexProblem(null, null);
                     break;
             }
         }
@@ -512,12 +529,12 @@ namespace MetOptLaba1
 
         private void optimizationProblemComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            SetupObj.GetInstance().optimizationProblem = optimizationProblemComboBox.SelectedIndex;
+            SetupObj.GetInstance().OptimizationProblem = optimizationProblemComboBox.SelectedIndex;
         }
 
         private void fractionTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            SetupObj.GetInstance().fractionType = fractionTypeComboBox.SelectedIndex;
+            SetupObj.GetInstance().FractionType = fractionTypeComboBox.SelectedIndex;
         }
 
         private void basisUi_Loaded(object sender, RoutedEventArgs e)
@@ -542,7 +559,7 @@ namespace MetOptLaba1
 
         private void solutionTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            SetupObj.GetInstance().solutionType = solutionTypeComboBox.SelectedIndex;
+            SetupObj.GetInstance().SolutionType = solutionTypeComboBox.SelectedIndex;
             updateBasisUi();
         }
     }

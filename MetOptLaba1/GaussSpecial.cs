@@ -66,6 +66,8 @@ namespace MetOptLaba1
                 }
             }
 
+            matr = Utils.RemoveAllZeroRows(matr);
+
             return matr;
         }
 

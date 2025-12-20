@@ -49,27 +49,9 @@ namespace MetOptLaba1
                 }
             }
 
-            matr = RemoveAllZeroRows(matr);
+            matr = Utils.RemoveAllZeroRows(matr);
 
             return matr;
-        }
-
-        private static Fraction[,] RemoveAllZeroRows(Fraction[,] matr)
-        {
-            var nonZeroRows = Enumerable.Range(0, matr.GetLength(0))
-                .Where(i => !Enumerable.Range(0, matr.GetLength(1)).All(j => matr[i, j].Numerator == 0));
-
-            var result = new Fraction[nonZeroRows.Count(), matr.GetLength(1)];
-
-            int rowIndex = 0;
-            foreach(int i in nonZeroRows) {
-                for(int j = 0; j < matr.GetLength(1); j++) {
-                    result[rowIndex, j] = matr[i, j];
-                }
-                rowIndex++;
-            }
-
-            return result;
         }
     }
 }

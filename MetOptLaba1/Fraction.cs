@@ -162,7 +162,7 @@ namespace MetOptLaba1
         
         public override string ToString()
         {
-            switch (SetupObj.GetInstance().fractionType) {
+            switch (SetupObj.GetInstance().FractionType) {
                 case 0:
                     return getCommonFractionString();
                 case 1:

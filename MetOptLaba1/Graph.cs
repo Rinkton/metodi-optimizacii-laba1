@@ -29,46 +29,20 @@ namespace MetOptLaba1
             feasibleRegionPoints = new List<DataPoint>();
         }
 
-        public void PlotSimplexProblem(Fraction[,] constraints, Fraction[] plotFunction)
+        public void PlotSimplexProblem(Fraction[] target, Fraction[,] constraints)
         {
-            constraints = new Fraction[,] {
-                {
-                    new Fraction(1, 3),
-                    new Fraction(1, 3),
-                    new Fraction(1, 1),
-                },
-                {
-                    new Fraction(2, 3),
-                    new Fraction(-1, 3),
-                    new Fraction(1, 1),
-                },
-                {
-                    new Fraction(-1, 1),
-                    new Fraction(0, 1),
-                    new Fraction(0, 1),
-                },
-                {
-                    new Fraction(0, 1),
-                    new Fraction(-1, 1),
-                    new Fraction(0, 1),
-                },
-            };
-            /*
-            targetFunction = new Fraction[]
+            constraints = Utils.AddRowToArray2D(constraints, new Fraction[]
             {
-                new Fraction(2, 1),
-                new Fraction(2, 1),
                 new Fraction(-1, 1),
-            };
-
-            constraints = new Fraction[,] {
-                {
-                    new Fraction(1, 1),
-                    new Fraction(1, 1),
-                    new Fraction(1, 1),
-                },
-            };
-            */
+                new Fraction(0, 1),
+                new Fraction(0, 1),
+            });
+            constraints = Utils.AddRowToArray2D(constraints, new Fraction[]
+            {
+                new Fraction(0, 1),
+                new Fraction(-1, 1),
+                new Fraction(0, 1),
+            });
 
             var someConstraintMin = Math.Max(constraints[0, 0].ToDouble(),
                 constraints[0, 1].ToDouble());
@@ -81,12 +55,7 @@ namespace MetOptLaba1
 
             // TODO: Сделать поставку цел ф и ограничений корректное
             // TODO: Дааа, надо добавлять ещё то, что -x1 <= 0 и -x2 <= 0
-            plotFunction = new Fraction[]
-            {
-                new Fraction(-1, 3),
-                new Fraction(-1, 3),
-                new Fraction(-4, 1),
-            };
+            // TODO: тут тоже вид дробей влияет наверн
 
             calculateFeasibleRegion(constraints);
 
@@ -97,11 +66,26 @@ namespace MetOptLaba1
                 plotFeasibleRegion();
             }
 
-            plotTargetFunction(plotFunction);
+            plotTargetFunction(target);
 
-            plotGradientVector(plotFunction);
+            plotGradientVector(target);
 
             MyModel.InvalidatePlot(true);
+        }
+
+        public static Fraction[] GetBasis(int variableAmount)
+        {
+            Fraction[] result = new Fraction[variableAmount];
+
+            for(int i = 0; i < 2; i++) {
+                result[i] = new Fraction(0, 1);
+            }
+
+            for(int i = 2; i < variableAmount; i++) {
+                result[i] = new Fraction(1, 1);
+            }
+
+            return result;
         }
 
         private void initializeModel()
