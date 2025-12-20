@@ -1,5 +1,7 @@
 ﻿using Microsoft.Win32;
 using Newtonsoft.Json;
+using OxyPlot;
+using OxyPlot.Wpf;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -491,6 +493,11 @@ namespace MetOptLaba1
                     break;
                 case "Метод искусственного базиса":
                     gridPaintCells(artificialSimplexGrid);
+                    break;
+                case "Графический двумерный метод":
+                    Graph graph = new Graph();
+                    graphView.Model = graph.MyModel;
+                    graph.PlotSimplexProblem(null, null);
                     break;
             }
         }

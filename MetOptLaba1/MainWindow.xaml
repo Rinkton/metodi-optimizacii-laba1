@@ -77,7 +77,7 @@
             </TabItem>
             <TabItem x:Name="graphicsTab" Header="Графический двумерный метод" Visibility="Visible">
                 <Grid Background="#FFE5E5E5">
-                    <oxy:PlotView Model="{Binding MyModel}"/>
+                    <oxy:PlotView x:Name="graphView" Model="{Binding MyModel}"/>
                 </Grid>
             </TabItem>
         </TabControl>
