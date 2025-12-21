@@ -77,15 +77,18 @@ namespace MetOptLaba1
             }
             int[] basis = X0toBasis(x0);
             Fraction[,] gaussHandledConstraints;
-            if (noBasisForNow || !checkBasis) {
+            if (noBasisForNow) {
                 gaussHandledConstraints = GaussAverage.GetHandledMatrix(
                     nonlinearConstraints);
             }
-            else {
+            else if (checkBasis) {
                 gaussHandledConstraints = GaussSpecial.GetHandledMatrix(
                     nonlinearConstraints, basis);
             }
-            return gaussHandledConstraints;
+            else {
+                gaussHandledConstraints = nonlinearConstraints;
+            }
+                return gaussHandledConstraints;
         }
 
         public static int[] X0toBasis(Fraction[] x0)

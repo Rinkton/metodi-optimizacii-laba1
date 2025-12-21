@@ -267,7 +267,6 @@ namespace MetOptLaba1
                         )
                     );
 
-                    // TODO: БЛЯ graphics_handled воще непонятно что за gaussHandledConstraints у него
                     targetFractionContentTable = SimplexTableContentFormer
                         .GetLastSimplexTableRow(
                         targetFractionContentTable, 
