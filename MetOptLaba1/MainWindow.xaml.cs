@@ -195,6 +195,8 @@ namespace MetOptLaba1
         {
             artificialSimplexGrid.Children.Clear();
             simplexGrid.Children.Clear();
+            simplexGridAnswer.Children.Clear();
+            artificialSimplexGridAnswer.Children.Clear();
             simplexTab.Visibility = Visibility.Collapsed;
             artificalTab.Visibility = Visibility.Collapsed;
             graphicsTab.Visibility = Visibility.Collapsed;
@@ -379,6 +381,7 @@ namespace MetOptLaba1
             graphView.Model = graph.MyModel;
             graph.PlotSimplexProblem(target, constraints);
             string answer = graph.GetAnswer(target, fullDimensionTarget, constraints, x0);
+            graphicsAnswer.Content = answer;
         }
 
         private void doSimplex(Fraction[] preTarget, Fraction[,] preConstraints,
@@ -459,6 +462,7 @@ namespace MetOptLaba1
             }
             grid.Children.Add(dg);
             if (grid == simplexGrid) {
+                simplexGridAnswer.Children.Clear();
                 simplexTab.Visibility = Visibility.Visible;
                 string answer = "";
                 if(newSimplexTable.GetIsItSolved()) {

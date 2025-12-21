@@ -7,7 +7,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MetOptLaba1"
         mc:Ignorable="d"
-        Title="MetOpt" Height="550" Width="800">
+        Title="MetOpt" Height="676" Width="1024" FontSize="14">
     <Window.DataContext>
         <local:Graph/>
     </Window.DataContext>
@@ -94,7 +94,44 @@
             </TabItem>
             <TabItem x:Name="graphicsTab" Header="Графический двумерный метод" Visibility="Collapsed">
                 <Grid Background="#FFE5E5E5">
-                    <oxy:PlotView x:Name="graphView" Model="{Binding MyModel}"/>
+                    <StackPanel Orientation="Horizontal">
+                        <StackPanel Orientation="Vertical">
+                            <oxy:PlotView x:Name="graphView" Model="{Binding MyModel}" Width="600" Height="600"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Vertical">
+                            <Label x:Name="graphicsAnswer"></Label>
+                            <BulletDecorator Margin="5,20,0,0">
+                                <BulletDecorator.Bullet>
+                                    <Rectangle Width="16" Height="16" Fill="Violet" Margin="0,0,8,0"/>
+                                </BulletDecorator.Bullet>
+                                <TextBlock Text="Целевая функция" VerticalAlignment="Center"/>
+                            </BulletDecorator>
+                            <BulletDecorator Margin="5,20,0,0">
+                                <BulletDecorator.Bullet>
+                                    <Rectangle Width="16" Height="16" Fill="Blue" Margin="0,0,8,0"/>
+                                </BulletDecorator.Bullet>
+                                <TextBlock Text="Ограничения" VerticalAlignment="Center"/>
+                            </BulletDecorator>
+                            <BulletDecorator Margin="5,20,0,0">
+                                <BulletDecorator.Bullet>
+                                    <Rectangle Width="16" Height="16" Fill="#90EE90" Margin="0,0,8,0"/>
+                                </BulletDecorator.Bullet>
+                                <TextBlock Text="Допустимый регион" VerticalAlignment="Center"/>
+                            </BulletDecorator>
+                            <BulletDecorator Margin="5,20,0,0">
+                                <BulletDecorator.Bullet>
+                                    <Rectangle Width="16" Height="16" Fill="Red" Margin="0,0,8,0"/>
+                                </BulletDecorator.Bullet>
+                                <TextBlock Text="Вершины" VerticalAlignment="Center"/>
+                            </BulletDecorator>
+                            <BulletDecorator Margin="5,20,0,0">
+                                <BulletDecorator.Bullet>
+                                    <Rectangle Width="16" Height="16" Fill="Orange" Margin="0,0,8,0"/>
+                                </BulletDecorator.Bullet>
+                                <TextBlock Text="Градиент-вектор" VerticalAlignment="Center"/>
+                            </BulletDecorator>
+                        </StackPanel>
+                    </StackPanel>
                 </Grid>
             </TabItem>
         </TabControl>

@@ -397,7 +397,7 @@ namespace MetOptLaba1
             var targetSeries = new LineSeries
             {
                 Title = $"Целевая функция: {c1}x1 + {c2}x2 = {c}",
-                Color = OxyColors.Red,
+                Color = OxyColors.Violet,
                 StrokeThickness = 3,
                 LineStyle = LineStyle.Dash,
                 Dashes = new double[] { 4, 4 }
