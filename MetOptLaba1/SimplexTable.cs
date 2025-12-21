@@ -24,20 +24,27 @@ namespace MetOptLaba1
         public readonly StackPanel Grid;
         public int RealVariablesCount { get; private set; }
         public bool noStepsAllowed { get; private set; } = false;
-
-        private Fraction[,] content;
-        private int[] freeVariables;
-        private int[] basisVariables;
+        // Нужны, чтобы просто переносить изначальную задачу, чтобы сформировать ответ
+        // Или сделать переход из метода искусственного базиса в обычную симплекс
+        // таблицу
+        public Fraction[] Target;
+        public Fraction[,] Constraints;
+        public Fraction[,] Content { get; private set; }
+        public int[] FreeVariables { get; private set; }
+        public int[] BasisVariables { get; private set; }
 
         private List<AllowableElementData> allowableElementDatas = new List<AllowableElementData>();
 
         // Обычно вызывается после первого шага
-        public SimplexTable(Fraction[,] content, int[] freeVariables, 
+        public SimplexTable(Fraction[] target, Fraction[,] constraints, 
+            Fraction[,] content, int[] freeVariables, 
             int[] basisVariables, int idx, StackPanel grid, int realVariablesCount)
         {
-            this.content = content;
-            this.freeVariables = freeVariables;
-            this.basisVariables = basisVariables;
+            Target = target;
+            Constraints = constraints;
+            this.Content = content;
+            this.FreeVariables = freeVariables;
+            this.BasisVariables = basisVariables;
             Idx = idx;
             Grid = grid;
             DataGrid = getDataGrid(idx);
@@ -46,10 +53,13 @@ namespace MetOptLaba1
         }
 
         // Обычно вызывается сразу после формирования симплекс таблицы
-        public SimplexTable(Fraction[,] content, Fraction[] x0, int idx, 
+        public SimplexTable(Fraction[] target, Fraction[,] constraints, 
+            Fraction[,] content, Fraction[] x0, int idx, 
             StackPanel grid, int realVariablesCount)
         {
-            this.content = content;
+            Target = target;
+            Constraints = constraints;
+            this.Content = content;
             List<int> freeVariablesList = new List<int>();
             List<int> basisVariablesList = new List<int>();
             for (int i = 0; i < x0.Length; i++) {
@@ -60,8 +70,8 @@ namespace MetOptLaba1
                     basisVariablesList.Add(i);
                 }
             }
-            freeVariables = freeVariablesList.ToArray();
-            basisVariables = basisVariablesList.ToArray();
+            FreeVariables = freeVariablesList.ToArray();
+            BasisVariables = basisVariablesList.ToArray();
             Idx = idx;
             Grid = grid;
             RealVariablesCount = realVariablesCount;
@@ -74,7 +84,8 @@ namespace MetOptLaba1
             bool isArtificialMethod = RealVariablesCount != 0;
             var (allowableColumnList, bestColumns) = 
                 getAllowableColumnListAndBestColumns(false);
-            bool allowIdling = allowableColumnList.Count == 0 && !GetIsFAllZero() && 
+            bool allowIdling = allowableColumnList.Count == 0 && 
+                GetArtificialResult() != ArtificialResult.AllZero && 
                 GetIsThereArtificial() && isArtificialMethod;
             if (allowIdling) {
                 (allowableColumnList, bestColumns) =
@@ -92,12 +103,12 @@ namespace MetOptLaba1
                 // allowableRows не существует, там ток лучшие есчо
                 List<int> bestRows = new List<int>();
                 Fraction bestDivision = Fraction.GetZero();
-                for (int i = 0; i < basisVariables.Length; i++) {
-                    Fraction elem = content[i, allowableColumnList[j]];
+                for (int i = 0; i < BasisVariables.Length; i++) {
+                    Fraction elem = Content[i, allowableColumnList[j]];
                     if(elem.Numerator <= 0) {
                         continue;
                     }
-                    Fraction bElem = content[i, freeVariables.Length];
+                    Fraction bElem = Content[i, FreeVariables.Length];
                     Fraction division = bElem / elem;
                     if(bestRows.Count == 0 || division < bestDivision) {
                         bestRows = new List<int> { i };
@@ -144,8 +155,8 @@ namespace MetOptLaba1
             List<int> allowableColumnList = new List<int>();
             List<int> bestColumns = new List<int>();
             Fraction bestColumnValue = Fraction.GetZero();
-            for(int i = 0; i < freeVariables.Length; i++) {
-                Fraction fElem = content[basisVariables.Length, i];
+            for(int i = 0; i < FreeVariables.Length; i++) {
+                Fraction fElem = Content[BasisVariables.Length, i];
                 if(fElem.Numerator < 0 || allowIdling) {
                     allowableColumnList.Add(i);
                     if (bestColumns.Count == 0 || fElem < bestColumnValue) {
@@ -162,8 +173,8 @@ namespace MetOptLaba1
 
         public bool GetIsItSolved()
         {
-            for (int i = 0; i < content.GetLength(1); i++) {
-                if (content[content.GetLength(0)-1, i].Numerator < 0) {
+            for (int i = 0; i < Content.GetLength(1); i++) {
+                if (Content[Content.GetLength(0)-1, i].Numerator < 0) {
                     return false;
                 }
             }
@@ -172,11 +183,11 @@ namespace MetOptLaba1
 
         public bool GetIsItUnbounded()
         {
-            for(int i = 0; i < content.GetLength(1); i++) {
-                if(content[content.GetLength(0) - 1, i].Numerator < 0) {
+            for(int i = 0; i < Content.GetLength(1); i++) {
+                if(Content[Content.GetLength(0) - 1, i].Numerator < 0) {
                     bool allLessOrEqualZero = true;
-                    for (int j = content.GetLength(0)-1; j >= 0; j--) {
-                        if (content[j, i].Numerator > 0) {
+                    for (int j = Content.GetLength(0)-1; j >= 0; j--) {
+                        if (Content[j, i].Numerator > 0) {
                             allLessOrEqualZero = false;
                             break;
                         }
@@ -187,20 +198,24 @@ namespace MetOptLaba1
             return false;
         }
 
-        public bool GetIsFAllZero()
+        public ArtificialResult GetArtificialResult()
         {
-            for(int i = 0; i < content.GetLength(1); i++) {
-                if(content[content.GetLength(0) - 1, i].Numerator != 0) {
-                    return false;
+            for(int i = 0; i < Content.GetLength(1); i++) {
+                var numerator = Content[Content.GetLength(0) - 1, i].Numerator;
+                if(numerator > 0) {
+                    return ArtificialResult.HavePositive;
+                }
+                else if (numerator < 0) {
+                    return ArtificialResult.HaveNegative;
                 }
             }
-            return true;
+            return ArtificialResult.AllZero;
         }
 
         public bool GetIsThereArtificial()
         {
-            for(int i = 0; i < basisVariables.Length; i++) {
-                if(basisVariables[i] > RealVariablesCount - 1) {
+            for(int i = 0; i < BasisVariables.Length; i++) {
+                if(BasisVariables[i] > RealVariablesCount - 1) {
                     return true;
                 }
             }
@@ -219,12 +234,12 @@ namespace MetOptLaba1
             int[] nextFreeVariables;
             int[] nextBasisVariables;
 
-            int freeVariableToReplace = freeVariables[chosenColumn];
-            int basisVariableToReplace = basisVariables[chosenRow];
+            int freeVariableToReplace = FreeVariables[chosenColumn];
+            int basisVariableToReplace = BasisVariables[chosenRow];
 
             // Создаём копии массивов, не просто ссылаемся
-            nextFreeVariables = freeVariables.ToArray();
-            nextBasisVariables = basisVariables.ToArray();
+            nextFreeVariables = FreeVariables.ToArray();
+            nextBasisVariables = BasisVariables.ToArray();
 
             nextFreeVariables[chosenColumn] = basisVariableToReplace;
             nextBasisVariables[chosenRow] = freeVariableToReplace;
@@ -236,7 +251,7 @@ namespace MetOptLaba1
                 nextFreeVariables = RemoveElement(nextFreeVariables, basisVariableToReplace);
             }
 
-            return new SimplexTable(nextContent, nextFreeVariables, 
+            return new SimplexTable(Target, Constraints, nextContent, nextFreeVariables, 
                 nextBasisVariables, Idx+1, Grid, RealVariablesCount);
         }
 
@@ -264,19 +279,32 @@ namespace MetOptLaba1
             return result;
         }
 
+        public Fraction[] GetArtificialX0()
+        {
+            var x0 = new Fraction[Target.Length - 1];
+            // Занулим все
+            for (int i = 0; i < x0.Length; i++) {
+                x0[i] = Fraction.GetZero();
+            }
+            for (int i = 0; i < Content.GetLength(0)-1; i++) {
+                x0[BasisVariables[i]] = Content[i, Content.GetLength(1)-1];
+            }
+            return x0;
+        }
+
         private Fraction[,] getNextContent(int chosenRow, int chosenColumn)
         {
-            Fraction[,] nextContent = new Fraction[content.GetLength(0),content.GetLength(1)];
+            Fraction[,] nextContent = new Fraction[Content.GetLength(0),Content.GetLength(1)];
 
             nextContent[chosenRow, chosenColumn] = 
-                new Fraction(1, 1) / content[chosenRow, chosenColumn];
+                new Fraction(1, 1) / Content[chosenRow, chosenColumn];
 
             for (int j = 0; j < nextContent.GetLength(1); j++) {
                 if (j == chosenColumn) {
                     continue;
                 }
                 nextContent[chosenRow, j] = 
-                    content[chosenRow, j] / content[chosenRow, chosenColumn];
+                    Content[chosenRow, j] / Content[chosenRow, chosenColumn];
             }
 
             for(int i = 0; i < nextContent.GetLength(0); i++) {
@@ -284,9 +312,9 @@ namespace MetOptLaba1
                     continue;
                 }
                 Fraction minusChosenElement =
-                    Fraction.GetZero() - content[chosenRow, chosenColumn];
+                    Fraction.GetZero() - Content[chosenRow, chosenColumn];
                 nextContent[i, chosenColumn] =
-                    content[i, chosenColumn] / minusChosenElement;
+                    Content[i, chosenColumn] / minusChosenElement;
             }
 
             for(int i = 0; i < nextContent.GetLength(0); i++) {
@@ -294,8 +322,8 @@ namespace MetOptLaba1
                     if(i == chosenRow || j == chosenColumn) {
                         continue;
                     }
-                    nextContent[i, j] = content[i, j] - 
-                        content[i, chosenColumn] * nextContent[chosenRow, j];
+                    nextContent[i, j] = Content[i, j] - 
+                        Content[i, chosenColumn] * nextContent[chosenRow, j];
                 }
             }
 
@@ -313,8 +341,8 @@ namespace MetOptLaba1
                 IsReadOnly = true,
             };
 
-            int rowCount = content.GetLength(0);
-            int columnCount = content.GetLength(1);
+            int rowCount = Content.GetLength(0);
+            int columnCount = Content.GetLength(1);
 
             dataGrid.HeadersVisibility = DataGridHeadersVisibility.All;
 
@@ -322,11 +350,11 @@ namespace MetOptLaba1
             DataTable dt = new DataTable();
 
             for(int i = 0; i < columnCount - 1; i++) {
-                dt.Columns.Add($"x{freeVariables[i] + 1}", typeof(string));
+                dt.Columns.Add($"x{FreeVariables[i] + 1}", typeof(string));
             }
             dataGrid.LoadingRow += (sender, e) => {
-                if(e.Row.GetIndex() < basisVariables.Length) {
-                    e.Row.Header = $"x{basisVariables[e.Row.GetIndex()] + 1}";
+                if(e.Row.GetIndex() < BasisVariables.Length) {
+                    e.Row.Header = $"x{BasisVariables[e.Row.GetIndex()] + 1}";
                 }
                 else {
                     e.Row.Header = $"f";
@@ -340,9 +368,9 @@ namespace MetOptLaba1
             for(int i = 0; i < rowCount; i++) {
                 var row = dt.NewRow();
                 for(int j = 0; j < columnCount - 1; j++) {
-                    row[$"x{freeVariables[j] + 1}"] = content[i, j];
+                    row[$"x{FreeVariables[j] + 1}"] = Content[i, j];
                 }
-                row[$"b"] = content[i, columnCount - 1];
+                row[$"b"] = Content[i, columnCount - 1];
                 dt.Rows.Add(row);
             }
 
@@ -418,5 +446,11 @@ namespace MetOptLaba1
             }
             return false;
         }
+    }
+    public enum ArtificialResult
+    {
+        AllZero,
+        HavePositive,
+        HaveNegative
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OxyPlot.Axes;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
@@ -26,7 +27,7 @@ namespace MetOptLaba1
             )
         {
             int[] basis = X0toBasis(x0);
-            Fraction[,] simplexTableContent = getSimplexTable(target, gaussHandledConstraints, basis);
+            Fraction[,] simplexTableContent = GetSimplexTableContent(target, gaussHandledConstraints, basis);
             return simplexTableContent;
         }
 
@@ -209,34 +210,37 @@ namespace MetOptLaba1
             }
         }
 
-        public DataTable GetSimplexDataTable(DataTable variableDt, DataTable constraintDt)
-        {
-            return null;
-        }
-
-        private Fraction[,] getSimplexTable(Fraction[] target, Fraction[,] gaussHandledConstraints, int[] basis)
+        public static Fraction[,] GetSimplexTableContent(Fraction[] target, Fraction[,] gaussHandledConstraints, int[] basis)
         {
             Fraction[,] simplexTableWithoutLastRow = getSimplexTableWithoutLastRow(
                 gaussHandledConstraints, basis);
             Fraction[,] basisVariablesExpressions = Utils.GetTableNegativeAllButNotConstant(
                 simplexTableWithoutLastRow);
+            return GetSimplexTableBySimplexTableWithoutLastRow(
+                simplexTableWithoutLastRow, target, basis, simplexTableWithoutLastRow);
+        }
+
+        public static Fraction[,] GetSimplexTableBySimplexTableWithoutLastRow(
+            Fraction[,] simplexTableWithoutLastRow, Fraction[] target, int[] basis,
+            Fraction[,] sortedSimplexTableWithoutLastRow)
+        {
             Fraction[] lastSimplexTableRow = GetLastSimplexTableRow(
                 target, Utils.GetTableNegativeAllButNotConstant(
-                simplexTableWithoutLastRow), basis);
-            Fraction[,] simplexTable = new Fraction[simplexTableWithoutLastRow.GetLength(0) + 1, 
+                sortedSimplexTableWithoutLastRow), basis);
+            Fraction[,] simplexTable = new Fraction[simplexTableWithoutLastRow.GetLength(0) + 1,
                 simplexTableWithoutLastRow.GetLength(1)];
-            for (int i = 0; i < simplexTableWithoutLastRow.GetLength(0); i++) {
+            for(int i = 0; i < simplexTableWithoutLastRow.GetLength(0); i++) {
                 for(int j = 0; j < simplexTableWithoutLastRow.GetLength(1); j++) {
                     simplexTable[i, j] = simplexTableWithoutLastRow[i, j];
                 }
             }
-            for (int i = 0; i < lastSimplexTableRow.Length; i++) {
-                simplexTable[simplexTable.GetLength(0)-1, i] = lastSimplexTableRow[i];
+            for(int i = 0; i < lastSimplexTableRow.Length; i++) {
+                simplexTable[simplexTable.GetLength(0) - 1, i] = lastSimplexTableRow[i];
             }
             return simplexTable;
         }
 
-        private Fraction[,] getSimplexTableWithoutLastRow(Fraction[,] gaussHandledConstraints, int[] basis)
+        private static Fraction[,] getSimplexTableWithoutLastRow(Fraction[,] gaussHandledConstraints, int[] basis)
         {
             return Utils.GetMatrWithoutTheseIndices(gaussHandledConstraints, basis);
         }

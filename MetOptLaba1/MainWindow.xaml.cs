@@ -220,6 +220,11 @@ namespace MetOptLaba1
                 (Fraction[,] constraints, Fraction[] x0) = getConstraintsAndX0(
                     constraintStringContentTable, basisString2DContentTable, 
                     simplexTableContentFormer);
+                
+                // Сохраняем цел ф и ограничения перед тем, как добавить
+                // к ним искусственные переменные
+                Fraction[] preTarget = targetFractionContentTable.ToArray();
+                Fraction[,] preConstraints = constraints.Clone() as Fraction[,];
 
                 bool isArtificialBasis = solutionTypeComboBox.SelectedIndex == 0;
 
@@ -233,7 +238,8 @@ namespace MetOptLaba1
                     doGraphics(targetFractionContentTable, constraints, x0);
                 }
                 else {
-                    doSimplex(simplexTableContentFormer, targetFractionContentTable, 
+                    doSimplex(preTarget, preConstraints, 
+                        simplexTableContentFormer, targetFractionContentTable, 
                         constraints, x0);
                 }
 
@@ -374,7 +380,8 @@ namespace MetOptLaba1
             string answer = graph.GetAnswer(target, fullDimensionTarget, constraints, x0);
         }
 
-        private void doSimplex(SimplexTableContentFormer simplexTableContentFormer, 
+        private void doSimplex(Fraction[] preTarget, Fraction[,] preConstraints,
+            SimplexTableContentFormer simplexTableContentFormer, 
             Fraction[] target, Fraction[,] constraints, Fraction[] x0)
         {
             Fraction[,] simplexTableContent = simplexTableContentFormer.FormSimplexTableContent(
@@ -382,7 +389,8 @@ namespace MetOptLaba1
 
             bool isArtificialBasis = solutionTypeComboBox.SelectedIndex == 0;
             int realVariablesCount = SetupObj.GetInstance().VariableAmount;
-            SimplexTable simplexTable = new SimplexTable(simplexTableContent,
+            SimplexTable simplexTable = new SimplexTable(preTarget, preConstraints, 
+                simplexTableContent,
                 x0, 0,
                 isArtificialBasis ? artificialSimplexGrid : simplexGrid,
                 isArtificialBasis ? realVariablesCount : 0);
@@ -460,16 +468,61 @@ namespace MetOptLaba1
             }
             else if (grid == artificialSimplexGrid) {
                 artificalTab.Visibility = Visibility.Visible;
-                if (newSimplexTable.GetIsFAllZero() && 
-                    newSimplexTable.GetIsThereArtificial()) 
-                {
-                    // TODO transfer table to the simplex method
+                var answer = getArtificialAnswer(newSimplexTable);
+                if (answer == "Метод искусственного базиса завершил свою работу") {
+                    Fraction[] x0 = newSimplexTable.GetArtificialX0();
+                    int[] basis = SimplexTableContentFormer.X0toBasis(x0);
+                    Fraction[,] sortedNewSimplexTableContent = 
+                        newSimplexTable.Content.Clone() as Fraction[,];
+                    Utils.SortWithFractionRows(newSimplexTable.BasisVariables,
+                        sortedNewSimplexTableContent);
+                    var notArtificialSimplexTableContent = 
+                        SimplexTableContentFormer
+                        .GetSimplexTableBySimplexTableWithoutLastRow(
+                            Utils.RemoveLastRow(newSimplexTable.Content), 
+                            newSimplexTable.Target, basis, 
+                            Utils.RemoveLastRow(sortedNewSimplexTableContent));
+                    // TODO: каждый раз когда переключаюсь на эту вкладку оно создаёт
+                    SimplexTable notArtificialSimplexTable = new SimplexTable(
+                        newSimplexTable.Target,
+                        newSimplexTable.Constraints,
+                        notArtificialSimplexTableContent,
+                        newSimplexTable.FreeVariables, newSimplexTable.BasisVariables,
+                        0,
+                        simplexGrid,
+                        newSimplexTable.Target.Length - 1
+                    );
+                    simplexTable_MadeNewSimplexTable(notArtificialSimplexTable, null, 
+                        notArtificialSimplexTable.Grid);
                 }
-                else if (newSimplexTable.noStepsAllowed) {
-                    // > 0 несовм
-                    // < 0 руки кривые почему-то
-                    // GetIsThereArtificial()
+            }
+        }
+
+        private string getArtificialAnswer(SimplexTable newSimplexTable)
+        {
+            var artificialResult = newSimplexTable.GetArtificialResult();
+            if(artificialResult == ArtificialResult.AllZero &&
+                !newSimplexTable.GetIsThereArtificial()) 
+            {
+                // TODO transfer table to the simplex method
+                return "Метод искусственного базиса завершил свою работу";
+            }
+            else if(newSimplexTable.noStepsAllowed) {
+                switch(artificialResult) {
+                    case ArtificialResult.HavePositive:
+                        return "Система ограничений несовместна, решения нет";
+                        break;
+                    case ArtificialResult.HaveNegative:
+                        return "Руки кривые.. но у кого?";
+                        break;
+                    default:
+                        return "Не удалось по какой-то причине вывести все искусственные" +
+                            "переменные из базиса. Решения не будет";
+                        break;
                 }
+            }
+            else {
+                return "";
             }
         }
 

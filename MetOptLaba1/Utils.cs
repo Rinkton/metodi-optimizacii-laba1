@@ -131,5 +131,47 @@ namespace MetOptLaba1
             }
             return result;
         }
+
+        public static Fraction[,] RemoveLastRow(Fraction[,] original)
+        {
+            int rows = original.GetLength(0);
+            int cols = original.GetLength(1);
+
+            Fraction[,] result = new Fraction[rows - 1, cols];
+
+            for(int i = 0; i < rows - 1; i++) {
+                for(int j = 0; j < cols; j++) {
+                    result[i, j] = original[i, j];
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Сортирует fractionRows в том же порядке, что и сортирует int[] keys
+        /// </summary>
+        /// <param name="keys"></param>
+        /// <param name="fractionRows"></param>
+        public static void SortWithFractionRows(int[] keys, Fraction[,] fractionRows)
+        {
+            int[] indices = new int[keys.Length];
+            for(int i = 0; i < indices.Length; i++) {
+                indices[i] = i;
+            }
+
+            Array.Sort(keys, indices);
+
+            int[] tempKeys = (int[])keys.Clone();
+            Fraction[,] tempFractionRows = (Fraction[,])fractionRows.Clone();
+
+            for(int i = 0; i < indices.Length; i++) {
+                keys[i] = tempKeys[indices[i]];
+
+                for(int col = 0; col < fractionRows.GetLength(1); col++) {
+                    fractionRows[i, col] = tempFractionRows[indices[i], col];
+                }
+            }
+        }
     }
 }
