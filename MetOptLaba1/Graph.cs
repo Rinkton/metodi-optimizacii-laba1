@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace MetOptLaba1
 {
@@ -76,8 +77,10 @@ namespace MetOptLaba1
         }
 
         // Делается после PlotSimplexProblem
-        public Fraction2DPoint GetAnswer(Fraction[] target)
+        public string GetAnswer(Fraction[] target, Fraction[,] constraints)
         {
+            Fraction[] bestFullDimensionPoint = new Fraction[
+                2 + constraints.GetLength(0)];
             Fraction fractionMinValue = Fraction.GetZero();
             Fraction2DPoint? bestFraction2DPoint = null;
             foreach (var fraction2DPoint in Fraction2DPoints) {
@@ -88,8 +91,16 @@ namespace MetOptLaba1
                     bestFraction2DPoint = fraction2DPoint;
                 }
             }
+            bestFullDimensionPoint[0] = bestFraction2DPoint.X;
+            bestFullDimensionPoint[1] = bestFraction2DPoint.Y;
+            for (int i = 0; i < constraints.GetLength(0); i++) {
+                var constraint = Utils.GetArray2DRow(constraints, i);
+                Fraction basisVariableValue = getBasisVariableValue(constraint, 
+                    bestFraction2DPoint);
+                bestFullDimensionPoint[2 + i] = basisVariableValue;
+            }
 
-            throw new NotImplementedException();
+            return formAnswer(target, bestFullDimensionPoint, fractionMinValue);
         }
 
         public static Fraction[] GetBasis(int variableAmount)
@@ -105,6 +116,32 @@ namespace MetOptLaba1
             }
 
             return result;
+        }
+
+        private Fraction getBasisVariableValue(Fraction[] constraint, 
+            Fraction2DPoint fraction2DPoint)
+        {
+            Fraction basisVariableValue = (Fraction.GetZero() - constraint[0]) * 
+                fraction2DPoint.X + (Fraction.GetZero() - constraint[1]) * 
+                fraction2DPoint.Y + constraint[2];
+            return basisVariableValue;
+        }
+
+        private string formAnswer(Fraction[] target, Fraction[] f, Fraction y)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("f(");
+            for (int i = 0; i < f.Length; i++) {
+                sb.Append(f[i].ToString());
+                if (i != f.Length-1) {
+                    sb.Append(", ");
+                }
+            }
+            sb.Append(") = ");
+            sb.Append(y.ToString());
+            sb.Append('\n');
+            sb.Append($"Градиент-вектор: ({target[0].ToDouble()}, {target[1].ToDouble()})");
+            return sb.ToString();
         }
 
         private void initializeModel()
@@ -265,9 +302,11 @@ namespace MetOptLaba1
                 // С точностью до сотых
                 // System.Globalization.CultureInfo.InvariantCulture нужен,
                 // чтобы дробная часть отделялась точкой, а не запятой
-                Fraction X = Fraction.FromString(point.X.ToString("F2", System.Globalization.CultureInfo.InvariantCulture));
-                Fraction Y = Fraction.FromString(point.Y.ToString("F2", System.Globalization.CultureInfo.InvariantCulture));
-                Fraction2DPoints.Add(new Fraction2DPoint(X, Y));
+                Fraction x = Fraction.FromString(point.X.ToString("F2", System.Globalization.CultureInfo.InvariantCulture));
+                Fraction y = Fraction.FromString(point.Y.ToString("F2", System.Globalization.CultureInfo.InvariantCulture));
+                if (SimplexTableContentFormer.AreConstraintsRightWithPoint(constraints, new Fraction[] { x, y }, true)) {
+                    Fraction2DPoints.Add(new Fraction2DPoint(x, y));
+                }
             }
 
             // Отсортируем их с помощью центроида

@@ -355,10 +355,6 @@ namespace MetOptLaba1
                 basisVariablesExpressions,
                 basis);
 
-            // TODO: Проверь, каковы basisVariablesExpressions и можно ли их преобразовать в ответ
-            // Надо, имея x1, x2 надо их подставить в обрезанное i ограничение, получить значение
-            // Перенести его в правую часть(умножив на -1 перед этим) и это и будет значение
-            // Переменной x(i+2)
             if(SetupObj.GetInstance().VariableAmount > 2) {
                 constraints = Utils.GetMatrWithoutTheseIndices(
                     constraints, Enumerable.Range(2,
@@ -372,6 +368,7 @@ namespace MetOptLaba1
             Graph graph = new Graph();
             graphView.Model = graph.MyModel;
             graph.PlotSimplexProblem(target, constraints);
+            string answer = graph.GetAnswer(target, constraints);
         }
 
         private void doSimplex(SimplexTableContentFormer simplexTableContentFormer, 

@@ -74,7 +74,7 @@ namespace MetOptLaba1
                     throw new UserException("Количество элементов в базисе должно " +
                         "равняться количеству ограничений");
                 }
-                if(checkBasisSatisfies && !areConstraintsRightWithPoint(nonlinearConstraints, x0)) {
+                if(checkBasisSatisfies && !AreConstraintsRightWithPoint(nonlinearConstraints, x0, !checkBasis)) {
                     throw new UserException("Предложенный базис не удовлетворяет ограничениям");
                 }
             }
@@ -177,17 +177,17 @@ namespace MetOptLaba1
             return x0.Count(x => x.Numerator != 0);
         }
 
-        private bool areConstraintsRightWithPoint(Fraction[,] constraints, Fraction[] point)
+        public static bool AreConstraintsRightWithPoint(Fraction[,] constraints, Fraction[] point, bool lessOrEqual)
         {
             for(int i = 0; i < constraints.GetLength(0); i++) {
-                if(!isConstraintRightWithPoint(Utils.GetArray2DRow(constraints, i), point)) {
+                if(!isConstraintRightWithPoint(Utils.GetArray2DRow(constraints, i), point, lessOrEqual)) {
                     return false;
                 }
             }
             return true;
         }
 
-        private bool isConstraintRightWithPoint(Fraction[] constraint, Fraction[] point)
+        private static bool isConstraintRightWithPoint(Fraction[] constraint, Fraction[] point, bool lessOrEqual)
         {
             if (constraint.Length != point.Length + 1) {
                 throw new UserException("Количество переменных в ограничении не равно " +
@@ -201,7 +201,12 @@ namespace MetOptLaba1
             // Последний элемент constraint это правая часть уравнения(константа)
             Fraction rightSide = constraint[constraint.Length - 1];
 
-            return leftSide == rightSide;
+            if(lessOrEqual) {
+                return leftSide <= rightSide;
+            }
+            else {
+                return leftSide == rightSide;
+            }
         }
 
         public DataTable GetSimplexDataTable(DataTable variableDt, DataTable constraintDt)

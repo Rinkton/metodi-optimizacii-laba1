@@ -191,7 +191,7 @@ namespace MetOptLaba1
 
         public double ToDouble()
         {
-            double d = (double)Numerator / Denominator;
+            double d = Math.Round((double)Numerator / Denominator, 4);
             return d;
         }
 
