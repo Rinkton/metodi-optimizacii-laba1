@@ -193,7 +193,6 @@ namespace MetOptLaba1
 
         private void apply_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: Все ли вводные задачи сохраняются?(базис, минимум максимум...)
             artificialSimplexGrid.Children.Clear();
             simplexGrid.Children.Clear();
             simplexTab.Visibility = Visibility.Collapsed;
@@ -269,8 +268,6 @@ namespace MetOptLaba1
             int height = constraintFractionContentTable.GetLength(0);
             int width = constraintFractionContentTable.GetLength(1);
             for(int i = 0; i < height; i++) {
-                // TODO: Не уверен, как бы правая часть должна быть положительна
-                // но в этом массиве справа ток 0
                 if (constraintFractionContentTable[i, width-1].Numerator < 0) {
                     for(int j = 0; j < width; j++) {
                         constraintFractionContentTable[i, j] *= new Fraction(-1, 1);
@@ -580,8 +577,6 @@ namespace MetOptLaba1
             }
         }
 
-        // TODO: при искусственном базисе мы хоть и не очищаем заданный пользователем ранее
-        // базис, но всё же просто игнорируем его юноу
         private void load_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -704,6 +699,4 @@ namespace MetOptLaba1
             SetupObj.GetInstance().SolutionMode = solutionModeComboBox.SelectedIndex;
         }
     }
-
-    // TODO: Лаба на решение граф методом целочисл можно перебором программно
 }

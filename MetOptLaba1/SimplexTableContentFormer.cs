@@ -15,11 +15,6 @@ namespace MetOptLaba1
     /// </summary>
     public class SimplexTableContentFormer
     {
-        // TODO: Ещё ручное, автоматическое управление
-
-        // TODO: Если функцию надо максимизировать, тогда всю цел ф надо умножить на -1
-        // TODO: При этом это надо сделать перед тем, как составить функцию для
-        // метода искусственного базиса, чтобы все x6+x7+x8 -> min были именно положительными
         public Fraction[,] FormSimplexTableContent(
             Fraction[] target, 
             Fraction[,] gaussHandledConstraints, 
