@@ -62,7 +62,7 @@
                             </StackPanel>
                             <StackPanel Orientation="Vertical">
                                 <Label Content="Ограничения"/>
-                                <DataGrid x:Name="constraintGrid" CanUserAddRows="False" CanUserDeleteRows="False" Loaded="grid_Loaded"/>
+                                <DataGrid x:Name="constraintGrid" CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" Loaded="grid_Loaded"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
