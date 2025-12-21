@@ -70,14 +70,18 @@
             </TabItem>
             <TabItem x:Name="artificalTab" Header="Метод искусственного базиса" Visibility="Collapsed">
                 <Grid Background="#FFE5E5E5">
-                    <StackPanel x:Name = "artificialSimplexGrid" Orientation="Vertical" Margin="10">
-                    </StackPanel>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel x:Name = "artificialSimplexGrid" Orientation="Vertical" Margin="10">
+                        </StackPanel>
+                    </ScrollViewer>
                 </Grid>
             </TabItem>
             <TabItem x:Name="simplexTab" Header="Симплекс метод" Visibility="Collapsed">
                 <Grid Background="#FFE5E5E5">
-                    <StackPanel x:Name = "simplexGrid" Orientation="Vertical" Margin="10">
-                    </StackPanel>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel x:Name = "simplexGrid" Orientation="Vertical" Margin="10">
+                        </StackPanel>
+                    </ScrollViewer>
                 </Grid>
             </TabItem>
             <TabItem x:Name="graphicsTab" Header="Графический двумерный метод" Visibility="Visible">
