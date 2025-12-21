@@ -180,11 +180,33 @@ namespace MetOptLaba1
 
         private void variableAmount_TextChanged(object sender, TextChangedEventArgs e)
         {
+            int result;
+            bool success = int.TryParse(variableAmount.Text, out result);
+            if (!success) {
+                variableAmount.Text = SetupObj.GetInstance().ConstraintAmount.ToString();
+                return;
+            }
+            if (result < 1 || result > 16) {
+                UserError.Show("Количество переменных должно быть от 1 до 16");
+                variableAmount.Text = SetupObj.GetInstance().ConstraintAmount.ToString();
+                return;
+            }
             updateTables();
         }
 
         private void constraintAmount_TextChanged(object sender, TextChangedEventArgs e)
         {
+            int result;
+            bool success = int.TryParse(constraintAmount.Text, out result);
+            if(!success) {
+                constraintAmount.Text = SetupObj.GetInstance().ConstraintAmount.ToString();
+                return;
+            }
+            if(result < 1 || result > 16) {
+                UserError.Show("Количество ограничений должно быть от 1 до 16");
+                constraintAmount.Text = SetupObj.GetInstance().ConstraintAmount.ToString();
+                return;
+            }
             updateTables();
         }
 

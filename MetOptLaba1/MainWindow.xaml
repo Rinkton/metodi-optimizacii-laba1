@@ -19,9 +19,9 @@
                         <StackPanel Orientation="Vertical">
                             <StackPanel Margin="10">
                                 <Label Content="Число переменных: "/>
-                                <TextBox x:Name="variableAmount" HorizontalAlignment="Left" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120" TextChanged="variableAmount_TextChanged"/>
+                                <TextBox x:Name="variableAmount" HorizontalAlignment="Left" TextWrapping="Wrap" Text="1" VerticalAlignment="Top" Width="120" TextChanged="variableAmount_TextChanged"/>
                                 <Label Content="Число ограничений: "/>
-                                <TextBox x:Name="constraintAmount" HorizontalAlignment="Left" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120" TextChanged="constraintAmount_TextChanged"/>
+                                <TextBox x:Name="constraintAmount" HorizontalAlignment="Left" TextWrapping="Wrap" Text="1" VerticalAlignment="Top" Width="120" TextChanged="constraintAmount_TextChanged"/>
                                 <Label Content="Задача оптимизаций: "/>
                                 <ComboBox x:Name="optimizationProblemComboBox" SelectedIndex="0" SelectionChanged="optimizationProblemComboBox_SelectionChanged">
                                     <ComboBoxItem Content="Минимизировать" />
