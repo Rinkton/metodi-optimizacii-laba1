@@ -25,8 +25,6 @@ namespace MetOptLaba1
             simplify();
         }
 
-        /* TODO: Возможно стоит сделать типа упрощение дроби после каждого изменения
-         * В сеттерах сверху */
         public static Fraction operator +(Fraction a, Fraction b)
         {
             long newNumerator = (a.Numerator * b.Denominator) + (b.Numerator * a.Denominator);

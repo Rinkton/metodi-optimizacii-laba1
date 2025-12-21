@@ -13,10 +13,10 @@ namespace MetOptLaba1
         public static Fraction[,] GetHandledMatrix(Fraction[,] matr, int[] basis)
         {
             if(basis.Length != matr.GetLength(0)) {
-                throw new Exception("Количество переменных в базисе не равно количеству ограничений");
+                throw new UserException("Количество переменных в базисе не равно количеству ограничений");
             }
             if(basis.Max() > matr.GetLength(1) - 2) {
-                throw new Exception("Какие-то индексы переменных базиса больше, чем количество переменных");
+                throw new UserException("Какие-то индексы переменных базиса больше, чем количество переменных");
             }
             int n = matr.GetLength(0); // Количество уравнений или неравенств
             int m = matr.GetLength(1); // Количество переменных плюс 1
@@ -89,8 +89,7 @@ namespace MetOptLaba1
                 }
             }
             if(iNonZero == -1) {
-                // TODO: Исключение должно обрабатываться программой и выдавать UserError
-                throw new Exception("Указанный базис не может существовать, во всех " +
+                throw new UserException("Указанный базис не может существовать, во всех " +
                     "ограничениях какая-то определённая переменная равна 0");
             }
             // глубокое копирование

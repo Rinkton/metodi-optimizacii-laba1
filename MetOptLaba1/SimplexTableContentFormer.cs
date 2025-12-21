@@ -234,8 +234,18 @@ namespace MetOptLaba1
                     simplexTable[i, j] = simplexTableWithoutLastRow[i, j];
                 }
             }
-            for(int i = 0; i < lastSimplexTableRow.Length; i++) {
-                simplexTable[simplexTable.GetLength(0) - 1, i] = lastSimplexTableRow[i];
+            if (simplexTable.GetLength(1) != 1) {
+                for(int i = 0; i < lastSimplexTableRow.Length; i++) {
+                    simplexTable[simplexTable.GetLength(0) - 1, i] = lastSimplexTableRow[i];
+                }
+            }
+            // 
+            else {
+                simplexTable[simplexTable.GetLength(0) - 1, 0] = Fraction.GetZero();
+                for (int i = 0; i < sortedSimplexTableWithoutLastRow.GetLength(0); i++) {
+                    simplexTable[simplexTable.GetLength(0) - 1, 0] -= target[i] * sortedSimplexTableWithoutLastRow[i, 0];
+                }
+                simplexTable[simplexTable.GetLength(0) - 1, 0] -= target.Last();
             }
             return simplexTable;
         }
@@ -251,11 +261,13 @@ namespace MetOptLaba1
             int[] basis)
         {
             Fraction[] targetWithoutBasis = Utils.GetArrayWithoutTheseIndices(target, basis);
-            for (int i = 0; i < basis.Length; i++) {
-                int curBasis = basis[i];
-                Fraction mult = target[curBasis];
-                for (int j = 0; j < targetWithoutBasis.Length; j++) {
-                    targetWithoutBasis[j] += basisVariablesExpressions[i, j] * mult;
+            if (basisVariablesExpressions.GetLength(1) != 1) {
+                for(int i = 0; i < basis.Length; i++) {
+                    int curBasis = basis[i];
+                    Fraction mult = target[curBasis];
+                    for(int j = 0; j < targetWithoutBasis.Length; j++) {
+                        targetWithoutBasis[j] += basisVariablesExpressions[i, j] * mult;
+                    }
                 }
             }
             // Умножаем на -1 константу
