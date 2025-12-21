@@ -84,7 +84,7 @@
                     </ScrollViewer>
                 </Grid>
             </TabItem>
-            <TabItem x:Name="graphicsTab" Header="Графический двумерный метод" Visibility="Visible">
+            <TabItem x:Name="graphicsTab" Header="Графический двумерный метод" Visibility="Collapsed">
                 <Grid Background="#FFE5E5E5">
                     <oxy:PlotView x:Name="graphView" Model="{Binding MyModel}"/>
                 </Grid>

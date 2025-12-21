@@ -196,6 +196,10 @@ namespace MetOptLaba1
             // TODO: Все ли вводные задачи сохраняются?(базис, минимум максимум...)
             artificialSimplexGrid.Children.Clear();
             simplexGrid.Children.Clear();
+            simplexTab.Visibility = Visibility.Collapsed;
+            artificalTab.Visibility = Visibility.Collapsed;
+            graphicsTab.Visibility = Visibility.Collapsed;
+
             updateStringTables();
             string[,] targetString2DContentTable = getDataGridContentTable(targetGrid);
             string[,] constraintStringContentTable = getDataGridContentTable(constraintGrid);
@@ -468,32 +472,33 @@ namespace MetOptLaba1
             }
             else if (grid == artificialSimplexGrid) {
                 artificalTab.Visibility = Visibility.Visible;
-                var answer = getArtificialAnswer(newSimplexTable);
-                if (answer == "Метод искусственного базиса завершил свою работу") {
-                    Fraction[] x0 = newSimplexTable.GetArtificialX0();
-                    int[] basis = SimplexTableContentFormer.X0toBasis(x0);
-                    Fraction[,] sortedNewSimplexTableContent = 
-                        newSimplexTable.Content.Clone() as Fraction[,];
-                    Utils.SortWithFractionRows(newSimplexTable.BasisVariables,
-                        sortedNewSimplexTableContent);
-                    var notArtificialSimplexTableContent = 
-                        SimplexTableContentFormer
-                        .GetSimplexTableBySimplexTableWithoutLastRow(
-                            Utils.RemoveLastRow(newSimplexTable.Content), 
-                            newSimplexTable.Target, basis, 
-                            Utils.RemoveLastRow(sortedNewSimplexTableContent));
-                    // TODO: каждый раз когда переключаюсь на эту вкладку оно создаёт
-                    SimplexTable notArtificialSimplexTable = new SimplexTable(
-                        newSimplexTable.Target,
-                        newSimplexTable.Constraints,
-                        notArtificialSimplexTableContent,
-                        newSimplexTable.FreeVariables, newSimplexTable.BasisVariables,
-                        0,
-                        simplexGrid,
-                        newSimplexTable.Target.Length - 1
-                    );
-                    simplexTable_MadeNewSimplexTable(notArtificialSimplexTable, null, 
-                        notArtificialSimplexTable.Grid);
+                if(simplexGrid.Children.Count == 0) {
+                    var answer = getArtificialAnswer(newSimplexTable);
+                    if(answer == "Метод искусственного базиса завершил свою работу") {
+                        Fraction[] x0 = newSimplexTable.GetArtificialX0();
+                        int[] basis = SimplexTableContentFormer.X0toBasis(x0);
+                        Fraction[,] sortedNewSimplexTableContent =
+                            newSimplexTable.Content.Clone() as Fraction[,];
+                        Utils.SortWithFractionRows(newSimplexTable.BasisVariables,
+                            sortedNewSimplexTableContent);
+                        var notArtificialSimplexTableContent =
+                            SimplexTableContentFormer
+                            .GetSimplexTableBySimplexTableWithoutLastRow(
+                                Utils.RemoveLastRow(newSimplexTable.Content),
+                                newSimplexTable.Target, basis,
+                                Utils.RemoveLastRow(sortedNewSimplexTableContent));
+                        SimplexTable notArtificialSimplexTable = new SimplexTable(
+                            newSimplexTable.Target,
+                            newSimplexTable.Constraints,
+                            notArtificialSimplexTableContent,
+                            newSimplexTable.FreeVariables, newSimplexTable.BasisVariables,
+                            0,
+                            simplexGrid,
+                            newSimplexTable.Target.Length - 1
+                        );
+                        simplexTable_MadeNewSimplexTable(notArtificialSimplexTable, null,
+                            notArtificialSimplexTable.Grid);
+                    }
                 }
             }
         }
