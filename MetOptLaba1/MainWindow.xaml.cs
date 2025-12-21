@@ -460,17 +460,21 @@ namespace MetOptLaba1
             grid.Children.Add(dg);
             if (grid == simplexGrid) {
                 simplexTab.Visibility = Visibility.Visible;
+                string answer = "";
                 if(newSimplexTable.GetIsItSolved()) {
-                    string answer = getSimplexAnswer(newSimplexTable);
+                    answer = getSimplexAnswer(newSimplexTable);
                 }
                 else if (newSimplexTable.GetIsItUnbounded()) {
-                    string answer = "Функция неограничена, решения нет";
+                    answer = "Функция неограничена, решения нет";
                 }
+                outputSimplexAnswer(simplexGridAnswer, answer);
             }
             else if (grid == artificialSimplexGrid) {
                 artificalTab.Visibility = Visibility.Visible;
                 if(simplexGrid.Children.Count == 0) {
                     var answer = getArtificialAnswer(newSimplexTable);
+                    outputSimplexAnswer(artificialSimplexGridAnswer, answer);
+
                     if(answer == "Метод искусственного базиса завершил свою работу") {
                         Fraction[] x0 = newSimplexTable.GetArtificialX0();
                         int[] basis = SimplexTableContentFormer.X0toBasis(x0);
@@ -554,6 +558,21 @@ namespace MetOptLaba1
             }
             else {
                 return "";
+            }
+        }
+
+        private void outputSimplexAnswer(StackPanel answerStackPanel, string answer)
+        {
+            if(answer != "" && answerStackPanel.Children
+            .OfType<FrameworkElement>()
+            .FirstOrDefault(x => x.Name == "answerLabel") == null) 
+            {
+                Label answerLabel = new Label
+                {
+                    Name = "answerLabel",
+                    Content = answer,
+                };
+                answerStackPanel.Children.Add(answerLabel);
             }
         }
 
