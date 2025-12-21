@@ -5,8 +5,8 @@ namespace MetOptLaba1
 {
     public struct Fraction
     {
-        public long Numerator;
-        public long Denominator;
+        public long Numerator { get; set; }
+        public long Denominator { get; set; }
 
         public Fraction(long numerator, long denominator)
         {

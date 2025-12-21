@@ -460,10 +460,10 @@ namespace MetOptLaba1
             if (grid == simplexGrid) {
                 simplexTab.Visibility = Visibility.Visible;
                 if(newSimplexTable.GetIsItSolved()) {
-                    // TODO make answer of point
+                    string answer = getSimplexAnswer(newSimplexTable);
                 }
                 else if (newSimplexTable.GetIsItUnbounded()) {
-                    // TODO make answer of unbounded
+                    string answer = "Функция неограничена, решения нет";
                 }
             }
             else if (grid == artificialSimplexGrid) {
@@ -498,13 +498,42 @@ namespace MetOptLaba1
             }
         }
 
+        private string getSimplexAnswer(SimplexTable newSimplexTable)
+        {
+            Fraction[] f = 
+                new Fraction[SetupObj.GetInstance().VariableAmount];
+            // Занулим все
+            for(int i = 0; i < f.Length; i++) {
+                f[i] = Fraction.GetZero();
+            }
+            for (int i = 0; i < newSimplexTable.BasisVariables.Length; i++) {
+                f[newSimplexTable.BasisVariables[i]] = 
+                    newSimplexTable.Content
+                    [i, newSimplexTable.Content.GetLength(1)-1];
+            }
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("f(");
+            for(int i = 0; i < SetupObj.GetInstance().VariableAmount; i++) {
+                sb.Append(f[i].ToString());
+                if(i != f.Length - 1) {
+                    sb.Append(", ");
+                }
+            }
+            sb.Append(") = ");
+            sb.Append((Fraction.GetZero() - newSimplexTable.Content
+                [newSimplexTable.Content.GetLength(0) - 1, 
+                newSimplexTable.Content.GetLength(1) - 1]).ToString());
+
+            return sb.ToString();
+        }
+
         private string getArtificialAnswer(SimplexTable newSimplexTable)
         {
             var artificialResult = newSimplexTable.GetArtificialResult();
             if(artificialResult == ArtificialResult.AllZero &&
                 !newSimplexTable.GetIsThereArtificial()) 
             {
-                // TODO transfer table to the simplex method
                 return "Метод искусственного базиса завершил свою работу";
             }
             else if(newSimplexTable.noStepsAllowed) {
