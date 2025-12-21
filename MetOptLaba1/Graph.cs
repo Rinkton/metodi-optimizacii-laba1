@@ -12,8 +12,6 @@ using System.Xml.Linq;
 
 namespace MetOptLaba1
 {
-    // TODO: Протестируй ту систему что дана в самом ТЗ на скриншотах юноу
-
     /// <summary>
     /// Для визуализации графического двумерного метода решения
     /// </summary>
@@ -55,8 +53,6 @@ namespace MetOptLaba1
             updateAxises((someRightPart / someConstraintMin) * 2);
 
             clearPlot();
-
-            // TODO: тут тоже вид дробей влияет наверн
 
             calculateFeasibleRegion(constraints);
 

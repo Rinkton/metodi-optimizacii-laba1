@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -383,6 +384,68 @@ namespace MetOptLaba1
         private void dataGrid_Loaded(object sender, RoutedEventArgs e)
         {
             PaintCells(true);
+            if (Grid.Name == "simplexGrid") {
+                string answer = "";
+                if(GetIsItSolved()) {
+                    answer = getSimplexAnswer();
+                }
+                else if(GetIsItUnbounded()) {
+                    answer = "Функция неограничена, решения нет";
+                }
+                MainWindow.OutputSimplexAnswer(getAnswer(Grid) as StackPanel, answer);
+            }
+            else if (Grid.Name == "artificialSimplexGrid") {
+                var answer = MainWindow.GetArtificialAnswer(this);
+                MainWindow.OutputSimplexAnswer(getAnswer(Grid) as StackPanel, answer);
+            }
+        }
+
+        private FrameworkElement getAnswer(FrameworkElement grid)
+        {
+            DependencyObject parent = VisualTreeHelper.GetParent(grid);
+
+            if(parent != null) {
+                int childCount = VisualTreeHelper.GetChildrenCount(parent);
+
+                for(int i = 0; i < childCount; i++) {
+                    var child = VisualTreeHelper.GetChild(parent, i);
+
+                    if((child as FrameworkElement).Name.Contains("Answer")) {
+                        return child as FrameworkElement;
+                    }
+                }
+            }
+            return null;
+        }
+
+        private string getSimplexAnswer()
+        {
+            Fraction[] f =
+                new Fraction[SetupObj.GetInstance().VariableAmount];
+            // Занулим все
+            for(int i = 0; i < f.Length; i++) {
+                f[i] = Fraction.GetZero();
+            }
+            for(int i = 0; i < BasisVariables.Length; i++) {
+                f[BasisVariables[i]] =
+                    Content
+                    [i, Content.GetLength(1) - 1];
+            }
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("f(");
+            for(int i = 0; i < SetupObj.GetInstance().VariableAmount; i++) {
+                sb.Append(f[i].ToString());
+                if(i != f.Length - 1) {
+                    sb.Append(", ");
+                }
+            }
+            sb.Append(") = ");
+            sb.Append((Fraction.GetZero() - Content
+                [Content.GetLength(0) - 1,
+                Content.GetLength(1) - 1]).ToString());
+
+            return sb.ToString();
         }
 
         private void dataGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)

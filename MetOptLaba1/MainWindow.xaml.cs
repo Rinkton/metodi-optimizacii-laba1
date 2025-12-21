@@ -35,9 +35,6 @@ namespace MetOptLaba1
 
         // В тетрадочке дизайн первого таба. Ещё гит пользуй, предохраняйся
 
-        // TODO: проверь несколько лучших элементов в столбце, всё ли норм будет
-        // TODO: Проверь ещё, где одинаково низкие коэффициенты в f
-        // TODO: Будет ли предлагать элементы разрешающие если unbounded?
         public MainWindow()
         {
             InitializeComponent();
@@ -464,20 +461,11 @@ namespace MetOptLaba1
             if (grid == simplexGrid) {
                 simplexGridAnswer.Children.Clear();
                 simplexTab.Visibility = Visibility.Visible;
-                string answer = "";
-                if(newSimplexTable.GetIsItSolved()) {
-                    answer = getSimplexAnswer(newSimplexTable);
-                }
-                else if (newSimplexTable.GetIsItUnbounded()) {
-                    answer = "Функция неограничена, решения нет";
-                }
-                outputSimplexAnswer(simplexGridAnswer, answer);
             }
             else if (grid == artificialSimplexGrid) {
                 artificalTab.Visibility = Visibility.Visible;
                 if(simplexGrid.Children.Count == 0) {
-                    var answer = getArtificialAnswer(newSimplexTable);
-                    outputSimplexAnswer(artificialSimplexGridAnswer, answer);
+                    var answer = GetArtificialAnswer(newSimplexTable);
 
                     if(answer == "Метод искусственного базиса завершил свою работу") {
                         Fraction[] x0 = newSimplexTable.GetArtificialX0();
@@ -508,37 +496,7 @@ namespace MetOptLaba1
             }
         }
 
-        private string getSimplexAnswer(SimplexTable newSimplexTable)
-        {
-            Fraction[] f = 
-                new Fraction[SetupObj.GetInstance().VariableAmount];
-            // Занулим все
-            for(int i = 0; i < f.Length; i++) {
-                f[i] = Fraction.GetZero();
-            }
-            for (int i = 0; i < newSimplexTable.BasisVariables.Length; i++) {
-                f[newSimplexTable.BasisVariables[i]] = 
-                    newSimplexTable.Content
-                    [i, newSimplexTable.Content.GetLength(1)-1];
-            }
-
-            StringBuilder sb = new StringBuilder();
-            sb.Append("f(");
-            for(int i = 0; i < SetupObj.GetInstance().VariableAmount; i++) {
-                sb.Append(f[i].ToString());
-                if(i != f.Length - 1) {
-                    sb.Append(", ");
-                }
-            }
-            sb.Append(") = ");
-            sb.Append((Fraction.GetZero() - newSimplexTable.Content
-                [newSimplexTable.Content.GetLength(0) - 1, 
-                newSimplexTable.Content.GetLength(1) - 1]).ToString());
-
-            return sb.ToString();
-        }
-
-        private string getArtificialAnswer(SimplexTable newSimplexTable)
+        public static string GetArtificialAnswer(SimplexTable newSimplexTable)
         {
             var artificialResult = newSimplexTable.GetArtificialResult();
             if(artificialResult == ArtificialResult.AllZero &&
@@ -565,7 +523,7 @@ namespace MetOptLaba1
             }
         }
 
-        private void outputSimplexAnswer(StackPanel answerStackPanel, string answer)
+        public static void OutputSimplexAnswer(StackPanel answerStackPanel, string answer)
         {
             if(answer != "" && answerStackPanel.Children
             .OfType<FrameworkElement>()

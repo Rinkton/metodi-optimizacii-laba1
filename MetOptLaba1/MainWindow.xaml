@@ -100,6 +100,7 @@
                         </StackPanel>
                         <StackPanel Orientation="Vertical">
                             <Label x:Name="graphicsAnswer"></Label>
+                            
                             <BulletDecorator Margin="5,20,0,0">
                                 <BulletDecorator.Bullet>
                                     <Rectangle Width="16" Height="16" Fill="Violet" Margin="0,0,8,0"/>
