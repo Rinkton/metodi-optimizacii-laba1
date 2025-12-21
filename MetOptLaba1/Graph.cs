@@ -56,8 +56,6 @@ namespace MetOptLaba1
 
             clearPlot();
 
-            // TODO: Сделать поставку цел ф и ограничений корректное
-            // TODO: Дааа, надо добавлять ещё то, что -x1 <= 0 и -x2 <= 0
             // TODO: тут тоже вид дробей влияет наверн
 
             calculateFeasibleRegion(constraints);
@@ -77,10 +75,16 @@ namespace MetOptLaba1
         }
 
         // Делается после PlotSimplexProblem
-        public string GetAnswer(Fraction[] target, Fraction[,] constraints)
+        public string GetAnswer(Fraction[] target, Fraction[] fullDimensionTarget, 
+            Fraction[,] constraints, Fraction[] x0)
         {
+            bool isThereBasis = SimplexTableContentFormer.X0toBasis(x0).Length ==
+                SetupObj.GetInstance().ConstraintAmount;
+            if (Fraction2DPoints.Count == 0) {
+                return "Нет допустимых решений, система ограничений противоречива";
+            }
             Fraction[] bestFullDimensionPoint = new Fraction[
-                2 + constraints.GetLength(0)];
+                2 + (isThereBasis ? constraints.GetLength(0) : 0)];
             Fraction fractionMinValue = Fraction.GetZero();
             Fraction2DPoint? bestFraction2DPoint = null;
             foreach (var fraction2DPoint in Fraction2DPoints) {
@@ -93,14 +97,17 @@ namespace MetOptLaba1
             }
             bestFullDimensionPoint[0] = bestFraction2DPoint.X;
             bestFullDimensionPoint[1] = bestFraction2DPoint.Y;
-            for (int i = 0; i < constraints.GetLength(0); i++) {
-                var constraint = Utils.GetArray2DRow(constraints, i);
-                Fraction basisVariableValue = getBasisVariableValue(constraint, 
-                    bestFraction2DPoint);
-                bestFullDimensionPoint[2 + i] = basisVariableValue;
+            if (isThereBasis) 
+            {
+                for(int i = 0; i < constraints.GetLength(0); i++) {
+                    var constraint = Utils.GetArray2DRow(constraints, i);
+                    Fraction basisVariableValue = getBasisVariableValue(constraint,
+                        bestFraction2DPoint);
+                    bestFullDimensionPoint[2 + i] = basisVariableValue;
+                }
             }
 
-            return formAnswer(target, bestFullDimensionPoint, fractionMinValue);
+            return formAnswer(fullDimensionTarget, bestFullDimensionPoint);
         }
 
         public static Fraction[] GetBasis(int variableAmount)
@@ -127,7 +134,7 @@ namespace MetOptLaba1
             return basisVariableValue;
         }
 
-        private string formAnswer(Fraction[] target, Fraction[] f, Fraction y)
+        private string formAnswer(Fraction[] fullDimensionTarget, Fraction[] f)
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("f(");
@@ -138,9 +145,16 @@ namespace MetOptLaba1
                 }
             }
             sb.Append(") = ");
-            sb.Append(y.ToString());
+
+            Fraction fullDimensionTargetValue = Fraction.GetZero();
+            for (int i = 0; i < f.Length; i++) {
+                fullDimensionTargetValue += f[i] * fullDimensionTarget[i];
+            }
+            fullDimensionTargetValue += fullDimensionTarget.Last();
+
+            sb.Append(fullDimensionTargetValue.ToString());
             sb.Append('\n');
-            sb.Append($"Градиент-вектор: ({target[0].ToDouble()}, {target[1].ToDouble()})");
+            sb.Append($"Градиент-вектор: ({fullDimensionTarget[0].ToString()}, {fullDimensionTarget[1].ToString()})");
             return sb.ToString();
         }
 

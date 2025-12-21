@@ -206,8 +206,10 @@ namespace MetOptLaba1
                     throw new UserException("Некорректная задача. Количество " +
                         "переменных или количество ограничений равно 0");
                 }
-                Fraction[,] targetFraction2DContentTable = getFractionContentTable(targetString2DContentTable);
-                Fraction[] targetFractionContentTable = Utils.GetArray2DFirstRow(targetFraction2DContentTable);
+                Fraction[,] targetFraction2DContentTable = getFractionContentTable(
+                    targetString2DContentTable);
+                Fraction[] targetFractionContentTable = Utils.GetArray2DFirstRow(
+                    targetFraction2DContentTable);
                 // Если задача на максимизацию
                 if(optimizationProblemComboBox.SelectedIndex == 1) {
                     multiplyByMinusOne(targetFractionContentTable);
@@ -349,6 +351,7 @@ namespace MetOptLaba1
                 )
             );
 
+            Fraction[] fullDimensionTarget = target.ToArray();
             target = SimplexTableContentFormer
                 .GetLastSimplexTableRow(
                 target,
@@ -368,7 +371,7 @@ namespace MetOptLaba1
             Graph graph = new Graph();
             graphView.Model = graph.MyModel;
             graph.PlotSimplexProblem(target, constraints);
-            string answer = graph.GetAnswer(target, constraints);
+            string answer = graph.GetAnswer(target, fullDimensionTarget, constraints, x0);
         }
 
         private void doSimplex(SimplexTableContentFormer simplexTableContentFormer, 
