@@ -596,11 +596,6 @@ namespace MetOptLaba1
             applyingLoadedSetupObj = false;
         }
 
-        private void exit_Click(object sender, RoutedEventArgs e)
-        {
-            Application.Current.Shutdown();
-        }
-
         private void updateStringTables()
         {
             string[,] targetString2DContentTable = getDataGridContentTable(targetGrid);
@@ -678,6 +673,12 @@ namespace MetOptLaba1
         private void solutionModeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             SetupObj.GetInstance().SolutionMode = solutionModeComboBox.SelectedIndex;
+        }
+
+        private void clear_Click(object sender, RoutedEventArgs e)
+        {
+            variableAmount.Text = "0";
+            constraintAmount.Text = "0";
         }
     }
 }
