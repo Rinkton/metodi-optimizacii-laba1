@@ -213,89 +213,26 @@ namespace MetOptLaba1
                     multiplyByMinusOne(targetFractionContentTable);
                 }
 
-                // НЕ ИСПОЛЬЗУЙ это в расчётах
-                Fraction[,] constraintFractionContentTable = getFractionContentTable(constraintStringContentTable);
+                SimplexTableContentFormer simplexTableContentFormer = new SimplexTableContentFormer();
+
+                (Fraction[,] constraints, Fraction[] x0) = getConstraintsAndX0(
+                    constraintStringContentTable, basisString2DContentTable, 
+                    simplexTableContentFormer);
+
                 bool isArtificialBasis = solutionTypeComboBox.SelectedIndex == 0;
-                if(isArtificialBasis) {
-                    ensureConstraintsRightPartIsPositive(constraintFractionContentTable);
-                }
-
-                Fraction[] basisFractionContentTable = new Fraction[1];
-                // Если базис заданный
-                if(solutionTypeComboBox.SelectedIndex == 1) {
-                    Fraction[,] basisFraction2DContentTable =
-                        getFractionContentTable(basisString2DContentTable);
-                    basisFractionContentTable =
-                        Utils.GetArray2DFirstRow(basisFraction2DContentTable);
-                }
-                // А вот если мы решаем графическим двумерным...
-                else if (solutionTypeComboBox.SelectedIndex == 2) {
-                    basisFractionContentTable = Graph.GetBasis(
-                        SetupObj.GetInstance().VariableAmount);
-                }
-
-                    SimplexTableContentFormer simplexTableContentFormer = new SimplexTableContentFormer();
-                // НЕ ИСПОЛЬЗУЙ это в расчётах
-                Fraction[,] nonlinearConstraints = simplexTableContentFormer.
-                    getNonlinearConstraints(constraintFractionContentTable);
-
-                bool checkBasis = solutionTypeComboBox.SelectedIndex != 2 || 
-                    basisFractionContentTable.Length - 2 == 
-                    SetupObj.GetInstance().ConstraintAmount;
-                Fraction[,] gaussHandledConstraints =
-                    simplexTableContentFormer
-                    .GetGaussHandledConstraintsAndBasisVariables(
-                        basisFractionContentTable, nonlinearConstraints,
-                        isArtificialBasis, checkBasis);
-
-                int realVariablesCount = SetupObj.GetInstance().VariableAmount;
 
                 if(isArtificialBasis) {
-                    (targetFractionContentTable, gaussHandledConstraints,
-                        basisFractionContentTable) =
+                    (targetFractionContentTable, constraints,
+                        x0) =
                         applyArtificialBasis(targetFractionContentTable,
-                        gaussHandledConstraints, basisFractionContentTable);
+                        constraints, x0);
                 }
-                // Если графический метод решения
                 if(solutionTypeComboBox.SelectedIndex == 2) {
-                    graphicsTab.Visibility = Visibility.Visible;
-
-                    int[] basis = SimplexTableContentFormer.X0toBasis(basisFractionContentTable);
-                    var basisVariablesExpressions = Utils.GetTableNegativeAllButNotConstant(
-                        Utils.GetMatrWithoutTheseIndices(
-                            gaussHandledConstraints, basis
-                        )
-                    );
-
-                    targetFractionContentTable = SimplexTableContentFormer
-                        .GetLastSimplexTableRow(
-                        targetFractionContentTable, 
-                        basisVariablesExpressions,
-                        basis);
-
-                    if (SetupObj.GetInstance().VariableAmount > 2) {
-                        gaussHandledConstraints = Utils.GetMatrWithoutTheseIndices(
-                            gaussHandledConstraints, Enumerable.Range(2, 
-                            SetupObj.GetInstance().VariableAmount - 2).ToArray());
-                    }
-                    if (gaussHandledConstraints.GetLength(1) != 3) {
-                        throw new UserException("Невозможно решить графическим" +
-                            "двумерным методом");
-                    }
-
-                    Graph graph = new Graph();
-                    graphView.Model = graph.MyModel;
-                    graph.PlotSimplexProblem(targetFractionContentTable, gaussHandledConstraints);
+                    doGraphics(targetFractionContentTable, constraints, x0);
                 }
-                // Иначе чё-то с симплексом
                 else {
-                    Fraction[,] simplexTableContent = simplexTableContentFormer.FormSimplexTableContent(
-                        targetFractionContentTable, gaussHandledConstraints, basisFractionContentTable);
-                    SimplexTable simplexTable = new SimplexTable(simplexTableContent,
-                        basisFractionContentTable, 0,
-                        isArtificialBasis ? artificialSimplexGrid : simplexGrid,
-                        isArtificialBasis ? realVariablesCount : 0);
-                    simplexTable_MadeNewSimplexTable(simplexTable, null, simplexTable.Grid);
+                    doSimplex(simplexTableContentFormer, targetFractionContentTable, 
+                        constraints, x0);
                 }
 
             }
@@ -356,6 +293,96 @@ namespace MetOptLaba1
             constraints = InsertUnitMatrixBetweenColumns(
                 constraints, constraints.GetLength(1)-2);
             return (target, constraints, basis);
+        }
+
+        private (Fraction[,] constraints, Fraction[] x0) getConstraintsAndX0(
+            string[,] constraintStringContentTable, 
+            string[,] basisString2DContentTable,
+            SimplexTableContentFormer simplexTableContentFormer)
+        {
+            // НЕ ИСПОЛЬЗУЙ это в расчётах
+            Fraction[,] constraintFractionContentTable = getFractionContentTable(constraintStringContentTable);
+            bool isArtificialBasis = solutionTypeComboBox.SelectedIndex == 0;
+            if(isArtificialBasis) {
+                ensureConstraintsRightPartIsPositive(constraintFractionContentTable);
+            }
+
+            Fraction[] basisFractionContentTable = new Fraction[1];
+            // Если базис заданный
+            if(solutionTypeComboBox.SelectedIndex == 1) {
+                Fraction[,] basisFraction2DContentTable =
+                    getFractionContentTable(basisString2DContentTable);
+                basisFractionContentTable =
+                    Utils.GetArray2DFirstRow(basisFraction2DContentTable);
+            }
+            // А вот если мы решаем графическим двумерным...
+            else if(solutionTypeComboBox.SelectedIndex == 2) {
+                basisFractionContentTable = Graph.GetBasis(
+                    SetupObj.GetInstance().VariableAmount);
+            }
+
+            // НЕ ИСПОЛЬЗУЙ это в расчётах
+            Fraction[,] nonlinearConstraints = simplexTableContentFormer.
+                getNonlinearConstraints(constraintFractionContentTable);
+
+            bool checkBasis = solutionTypeComboBox.SelectedIndex != 2 ||
+                basisFractionContentTable.Length - 2 ==
+                SetupObj.GetInstance().ConstraintAmount;
+            Fraction[,] gaussHandledConstraints =
+                simplexTableContentFormer
+                .GetGaussHandledConstraintsAndBasisVariables(
+                    basisFractionContentTable, nonlinearConstraints,
+                    isArtificialBasis, checkBasis);
+
+            return (gaussHandledConstraints, basisFractionContentTable);
+        }
+
+        private void doGraphics(Fraction[] target, Fraction[,] constraints, Fraction[] x0)
+        {
+            graphicsTab.Visibility = Visibility.Visible;
+
+            int[] basis = SimplexTableContentFormer.X0toBasis(x0);
+            var basisVariablesExpressions = Utils.GetTableNegativeAllButNotConstant(
+                Utils.GetMatrWithoutTheseIndices(
+                    constraints, basis
+                )
+            );
+
+            target = SimplexTableContentFormer
+                .GetLastSimplexTableRow(
+                target,
+                basisVariablesExpressions,
+                basis);
+
+            if(SetupObj.GetInstance().VariableAmount > 2) {
+                constraints = Utils.GetMatrWithoutTheseIndices(
+                    constraints, Enumerable.Range(2,
+                    SetupObj.GetInstance().VariableAmount - 2).ToArray());
+            }
+            if(constraints.GetLength(1) != 3) {
+                throw new UserException("Невозможно решить графическим" +
+                    "двумерным методом");
+            }
+
+            Graph graph = new Graph();
+            graphView.Model = graph.MyModel;
+            graph.PlotSimplexProblem(target, constraints);
+        }
+
+        private void doSimplex(SimplexTableContentFormer simplexTableContentFormer, 
+            Fraction[] target, Fraction[,] constraints, Fraction[] x0)
+        {
+            Fraction[,] simplexTableContent = simplexTableContentFormer.FormSimplexTableContent(
+                        target, constraints, x0);
+
+            bool isArtificialBasis = solutionTypeComboBox.SelectedIndex == 0;
+            int realVariablesCount = SetupObj.GetInstance().VariableAmount;
+            SimplexTable simplexTable = new SimplexTable(simplexTableContent,
+                x0, 0,
+                isArtificialBasis ? artificialSimplexGrid : simplexGrid,
+                isArtificialBasis ? realVariablesCount : 0);
+
+            simplexTable_MadeNewSimplexTable(simplexTable, null, simplexTable.Grid);
         }
 
         // public static чтобы тестить
