@@ -57,21 +57,24 @@ namespace MetOptLaba1
         /// <param name="x0"></param>
         /// <param name="nonlinearConstraints"></param>
         /// <param name="noBasisForNow">Если пока нет заданного базиса(если мы 
-        /// собираемся использовать искусственный или графический метод), то мы проведём обычный 
-        /// AverageGauss</param>
+        /// собираемся использовать искусственный или графический метод), то мы
+        /// не будем запускать SpecialGauss</param>
+        /// <param name="checkBasis">Есть ли хотя бы базис, чтоб его проверить</param>
+        /// <param name="checkBasisSatisfies">Проверять ли, что базис это точка, 
+        /// удовлетворяющая условиям</param>
         /// <returns></returns>
         /// <exception cref="UserException"></exception>
         public Fraction[,]
             GetGaussHandledConstraintsAndBasisVariables(Fraction[] x0,
             Fraction[,] nonlinearConstraints, 
-            bool noBasisForNow, bool checkBasis)
+            bool noBasisForNow, bool checkBasis, bool checkBasisSatisfies)
         {
             if (!noBasisForNow && checkBasis) {
                 if(getBasisVariablesCount(x0) != nonlinearConstraints.GetLength(0)) {
                     throw new UserException("Количество элементов в базисе должно " +
                         "равняться количеству ограничений");
                 }
-                if(!areConstraintsRightWithPoint(nonlinearConstraints, x0)) {
+                if(checkBasisSatisfies && !areConstraintsRightWithPoint(nonlinearConstraints, x0)) {
                     throw new UserException("Предложенный базис не удовлетворяет ограничениям");
                 }
             }

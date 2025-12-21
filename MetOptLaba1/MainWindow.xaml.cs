@@ -328,11 +328,12 @@ namespace MetOptLaba1
             bool checkBasis = solutionTypeComboBox.SelectedIndex != 2 ||
                 basisFractionContentTable.Length - 2 ==
                 SetupObj.GetInstance().ConstraintAmount;
+            bool checkBasisSatisfies = solutionTypeComboBox.SelectedIndex != 2;
             Fraction[,] gaussHandledConstraints =
                 simplexTableContentFormer
                 .GetGaussHandledConstraintsAndBasisVariables(
                     basisFractionContentTable, nonlinearConstraints,
-                    isArtificialBasis, checkBasis);
+                    isArtificialBasis, checkBasis, checkBasisSatisfies);
 
             return (gaussHandledConstraints, basisFractionContentTable);
         }
@@ -354,6 +355,10 @@ namespace MetOptLaba1
                 basisVariablesExpressions,
                 basis);
 
+            // TODO: Проверь, каковы basisVariablesExpressions и можно ли их преобразовать в ответ
+            // Надо, имея x1, x2 надо их подставить в обрезанное i ограничение, получить значение
+            // Перенести его в правую часть(умножив на -1 перед этим) и это и будет значение
+            // Переменной x(i+2)
             if(SetupObj.GetInstance().VariableAmount > 2) {
                 constraints = Utils.GetMatrWithoutTheseIndices(
                     constraints, Enumerable.Range(2,

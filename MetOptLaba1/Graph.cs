@@ -1,4 +1,5 @@
-﻿using OxyPlot;
+﻿using Newtonsoft.Json.Linq;
+using OxyPlot;
 using OxyPlot.Annotations;
 using OxyPlot.Axes;
 using OxyPlot.Series;
@@ -18,6 +19,7 @@ namespace MetOptLaba1
     public class Graph
     {
         public PlotModel MyModel { get; private set; }
+        public List<Fraction2DPoint> Fraction2DPoints { get; private set; } = new List<Fraction2DPoint>();
 
         private List<DataPoint> feasibleRegionPoints;
         private LinearAxis xAxis;
@@ -71,6 +73,23 @@ namespace MetOptLaba1
             plotGradientVector(target);
 
             MyModel.InvalidatePlot(true);
+        }
+
+        // Делается после PlotSimplexProblem
+        public Fraction2DPoint GetAnswer(Fraction[] target)
+        {
+            Fraction fractionMinValue = Fraction.GetZero();
+            Fraction2DPoint? bestFraction2DPoint = null;
+            foreach (var fraction2DPoint in Fraction2DPoints) {
+                Fraction targetValue = target[0] * fraction2DPoint.X +
+                    target[1] * fraction2DPoint.Y + target[2];
+                if(bestFraction2DPoint == null || targetValue < fractionMinValue) {
+                    fractionMinValue = targetValue;
+                    bestFraction2DPoint = fraction2DPoint;
+                }
+            }
+
+            throw new NotImplementedException();
         }
 
         public static Fraction[] GetBasis(int variableAmount)
@@ -242,7 +261,16 @@ namespace MetOptLaba1
                 }
             }
 
-            // Отсортируем их с помощью центроида(шо це?)
+            foreach (var point in intersectionPoints) {
+                // С точностью до сотых
+                // System.Globalization.CultureInfo.InvariantCulture нужен,
+                // чтобы дробная часть отделялась точкой, а не запятой
+                Fraction X = Fraction.FromString(point.X.ToString("F2", System.Globalization.CultureInfo.InvariantCulture));
+                Fraction Y = Fraction.FromString(point.Y.ToString("F2", System.Globalization.CultureInfo.InvariantCulture));
+                Fraction2DPoints.Add(new Fraction2DPoint(X, Y));
+            }
+
+            // Отсортируем их с помощью центроида
             if(feasibleRegionPoints.Count > 0) {
                 var centroid = new DataPoint(
                     feasibleRegionPoints.Average(p => p.X),
