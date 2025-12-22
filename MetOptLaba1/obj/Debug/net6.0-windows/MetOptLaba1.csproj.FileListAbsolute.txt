@@ -28,3 +28,5 @@ C:\Users\RINK\source\repos\MetOptLaba1\MetOptLaba1\obj\Debug\net6.0-windows\Gene
 C:\Users\RINK\source\repos\MetOptLaba1\MetOptLaba1\bin\Debug\net6.0-windows\OxyPlot.dll
 C:\Users\RINK\source\repos\MetOptLaba1\MetOptLaba1\bin\Debug\net6.0-windows\OxyPlot.Wpf.dll
 C:\Users\RINK\source\repos\MetOptLaba1\MetOptLaba1\bin\Debug\net6.0-windows\OxyPlot.Wpf.Shared.dll
+C:\Users\RINK\source\repos\MetOptLaba1\MetOptLaba1\obj\Debug\net6.0-windows\About.g.cs
+C:\Users\RINK\source\repos\MetOptLaba1\MetOptLaba1\obj\Debug\net6.0-windows\About.baml

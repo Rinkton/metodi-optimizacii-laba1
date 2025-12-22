@@ -702,5 +702,12 @@ namespace MetOptLaba1
             variableAmount.Text = "0";
             constraintAmount.Text = "0";
         }
+
+        private void about_Click(object sender, RoutedEventArgs e)
+        {
+            var aboutDialog = new About();
+            aboutDialog.Owner = this;
+            aboutDialog.ShowDialog();
+        }
     }
 }
