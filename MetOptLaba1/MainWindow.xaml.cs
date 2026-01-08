@@ -699,8 +699,8 @@ namespace MetOptLaba1
 
         private void clear_Click(object sender, RoutedEventArgs e)
         {
-            variableAmount.Text = "0";
-            constraintAmount.Text = "0";
+            variableAmount.Text = "1";
+            constraintAmount.Text = "1";
         }
 
         private void about_Click(object sender, RoutedEventArgs e)
