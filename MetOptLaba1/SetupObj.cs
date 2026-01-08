@@ -38,6 +38,9 @@ namespace MetOptLaba1
             if (TargetStringTable.Length != VariableAmount + 1) {
                 TargetStringTable = new string[VariableAmount + 1];
             }
+            if (string.IsNullOrEmpty(TargetStringTable[^1])) {
+                TargetStringTable[^1] = "0";
+            }
             if(ConstraintStringTable.GetLength(0) != ConstraintAmount ||
                 ConstraintStringTable.GetLength(1) != VariableAmount + 1) 
             {

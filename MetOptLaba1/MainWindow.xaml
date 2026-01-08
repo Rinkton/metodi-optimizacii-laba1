@@ -51,8 +51,8 @@
                                 <!-- Margin = "LEFT, UP, RIGHT, BOTTOM" -->
                                 <Button x:Name="save" Content="Сохранить" Margin="0,0,0,5" Click="save_Click"/>
                                 <Button x:Name="load" Content="Загрузить" Margin="0,0,0,5" Click="load_Click"/>
-                                <Button x:Name="apply" Content="Применить" Background="Green" Margin="0,20,0,5" Click="apply_Click"/>
-                                <Button x:Name="clear" Content="Очистить" Background="Red" Margin="0,0,0,5" Click="clear_Click"/>
+                                <Button x:Name="apply" Content="Применить" Background="#F8AFA6" Margin="0,20,0,5" Click="apply_Click"/>
+                                <Button x:Name="clear" Content="Очистить" Background="#A7D7A7" Margin="0,0,0,5" Click="clear_Click"/>
                                 <Button x:Name="about" Content="Справка" Margin="0,20,0,0" Click="about_Click"/>
                             </StackPanel>
                         </StackPanel>
