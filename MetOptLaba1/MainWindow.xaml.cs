@@ -338,17 +338,13 @@ namespace MetOptLaba1
             }
 
             Fraction[] basisFractionContentTable = new Fraction[1];
-            // Если базис заданный
-            if(solutionTypeComboBox.SelectedIndex == 1) {
+            // Если базис заданный(в симплекс или графическом методах)
+            if(solutionTypeComboBox.SelectedIndex == 1 || 
+            solutionTypeComboBox.SelectedIndex == 2) {
                 Fraction[,] basisFraction2DContentTable =
                     getFractionContentTable(basisString2DContentTable);
                 basisFractionContentTable =
                     Utils.GetArray2DFirstRow(basisFraction2DContentTable);
-            }
-            // А вот если мы решаем графическим двумерным...
-            else if(solutionTypeComboBox.SelectedIndex == 2) {
-                basisFractionContentTable = Graph.GetBasis(
-                    SetupObj.GetInstance().VariableAmount);
             }
 
             // НЕ ИСПОЛЬЗУЙ это в расчётах
@@ -678,6 +674,9 @@ namespace MetOptLaba1
             }
             switch(solutionTypeComboBox.SelectedIndex) {
                 case 1:
+                    basisUi.Visibility = Visibility.Visible;
+                    break;
+                case 2:
                     basisUi.Visibility = Visibility.Visible;
                     break;
                 default:

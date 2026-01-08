@@ -106,21 +106,6 @@ namespace MetOptLaba1
             return formAnswer(fullDimensionTarget, bestFullDimensionPoint);
         }
 
-        public static Fraction[] GetBasis(int variableAmount)
-        {
-            Fraction[] result = new Fraction[variableAmount];
-
-            for(int i = 0; i < 2; i++) {
-                result[i] = new Fraction(0, 1);
-            }
-
-            for(int i = 2; i < variableAmount; i++) {
-                result[i] = new Fraction(1, 1);
-            }
-
-            return result;
-        }
-
         private Fraction getBasisVariableValue(Fraction[] constraint, 
             Fraction2DPoint fraction2DPoint)
         {
