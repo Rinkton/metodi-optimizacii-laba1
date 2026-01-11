@@ -71,6 +71,12 @@ namespace MetOptLaba1
                 checkBox.Content = " - x" + (i+1).ToString();
                 basisUi.Children.Add(checkBox);
             }
+            if(variableAmount > SetupObj.GetInstance().Basis.Length) {
+                for (int i = 0; i < SetupObj.GetInstance().Basis.Length; i++) {
+                    CheckBox checkBox = basisUi.Children[SetupObj.GetInstance().Basis[i]] as CheckBox;
+                    checkBox.IsChecked = true;
+                }
+            }
         }
 
         private void updateTargetTable(int columnCount)
@@ -233,6 +239,7 @@ namespace MetOptLaba1
                 SimplexTableContentFormer simplexTableContentFormer = new SimplexTableContentFormer();
 
                 (Fraction[,] constraints, Fraction[] x0) = getConstraintsAndX0(
+                    SetupObj.GetInstance().VariableAmount, 
                     constraintStringContentTable, basis, 
                     simplexTableContentFormer);
                 
@@ -253,8 +260,8 @@ namespace MetOptLaba1
                     doGraphics(targetFractionContentTable, constraints, x0);
                 }
                 else {
-                    doSimplex(preTarget, preConstraints, 
-                        simplexTableContentFormer, targetFractionContentTable, 
+                    doSimplex(preTarget, preConstraints,
+                        simplexTableContentFormer, targetFractionContentTable,
                         constraints, x0);
                 }
 
@@ -269,7 +276,14 @@ namespace MetOptLaba1
 
         private int[] getBasisFromUi()
         {
-            throw new NotImplementedException();
+            List<int> basisList = new List<int>();
+            for (int i = 0; i < basisUi.Children.Count; i++) {
+                CheckBox checkBox = basisUi.Children[i] as CheckBox;
+                if (checkBox.IsChecked == true) {
+                    basisList.Add(i);
+                }
+            }
+            return basisList.ToArray();
         }
 
         private void multiplyByMinusOne(Fraction[] targetFractionContentTable)
@@ -322,6 +336,7 @@ namespace MetOptLaba1
         }
 
         private (Fraction[,] constraints, Fraction[] x0) getConstraintsAndX0(
+            int variableAmount,
             string[,] constraintStringContentTable, 
             int[] basis,
             SimplexTableContentFormer simplexTableContentFormer)
@@ -333,11 +348,16 @@ namespace MetOptLaba1
                 ensureConstraintsRightPartIsPositive(constraintFractionContentTable);
             }
 
-            Fraction[] basisFractionContentTable = new Fraction[1];
+            Fraction[] basisFractionContentTable = new Fraction[variableAmount];
             // Если базис заданный(в симплекс или графическом методах)
             if(solutionTypeComboBox.SelectedIndex == 1 || 
             solutionTypeComboBox.SelectedIndex == 2) {
-                throw new NotImplementedException("Вот тут делай получение x0 из базиса и в basisFractionContentTable его");
+                for(int i = 0; i < variableAmount; i++) {
+                    basisFractionContentTable[i] = Fraction.GetZero();
+                }
+                for(int i = 0; i < basis.Length; i++) {
+                    basisFractionContentTable[basis[i]] = new Fraction(1, 1);
+                }
             }
 
             // НЕ ИСПОЛЬЗУЙ это в расчётах

@@ -70,9 +70,6 @@ namespace MetOptLaba1
                     throw new UserException("Количество элементов в базисе должно " +
                         "равняться количеству ограничений");
                 }
-                if(checkBasisSatisfies && !AreConstraintsRightWithPoint(nonlinearConstraints, x0, !checkBasis)) {
-                    throw new UserException("Предложенный базис не удовлетворяет ограничениям");
-                }
             }
             int[] basis = X0toBasis(x0);
             Fraction[,] gaussHandledConstraints;
