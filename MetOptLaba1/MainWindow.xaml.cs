@@ -384,8 +384,7 @@ namespace MetOptLaba1
 
             if(SetupObj.GetInstance().VariableAmount > 2) {
                 constraints = Utils.GetMatrWithoutTheseIndices(
-                    constraints, Enumerable.Range(2,
-                    SetupObj.GetInstance().VariableAmount - 2).ToArray());
+                    constraints, basis.ToArray());
             }
             if(constraints.GetLength(1) != 3) {
                 throw new UserException("Невозможно решить графическим" +

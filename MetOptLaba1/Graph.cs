@@ -74,7 +74,14 @@ namespace MetOptLaba1
         public string GetAnswer(Fraction[] target, Fraction[] fullDimensionTarget, 
             Fraction[,] constraints, Fraction[] x0)
         {
-            bool isThereBasis = SimplexTableContentFormer.X0toBasis(x0).Length ==
+            int[] basis = SimplexTableContentFormer.X0toBasis(x0);
+            List<int> antiBasis = new List<int>();
+            for (int i = 0; i < x0.Length; i++) {
+                if(x0[i].Numerator == 0) {
+                    antiBasis.Add(i);
+                }
+            }
+            bool isThereBasis = basis.Length ==
                 SetupObj.GetInstance().ConstraintAmount;
             if (Fraction2DPoints.Count == 0) {
                 return "Нет допустимых решений, система ограничений противоречива";
@@ -91,15 +98,20 @@ namespace MetOptLaba1
                     bestFraction2DPoint = fraction2DPoint;
                 }
             }
-            bestFullDimensionPoint[0] = bestFraction2DPoint.X;
-            bestFullDimensionPoint[1] = bestFraction2DPoint.Y;
+            bestFullDimensionPoint[antiBasis[0]] = bestFraction2DPoint.X;
+            bestFullDimensionPoint[antiBasis[1]] = bestFraction2DPoint.Y;
+            int skipped = 0;
             if (isThereBasis) 
             {
-                for(int i = 0; i < constraints.GetLength(0); i++) {
-                    var constraint = Utils.GetArray2DRow(constraints, i);
+                for(int i = 0; i < bestFullDimensionPoint.Length; i++) {
+                    if (antiBasis.Contains(i)) {
+                        skipped++;
+                        continue;
+                    }
+                    var constraint = Utils.GetArray2DRow(constraints, i - skipped);
                     Fraction basisVariableValue = getBasisVariableValue(constraint,
                         bestFraction2DPoint);
-                    bestFullDimensionPoint[2 + i] = basisVariableValue;
+                    bestFullDimensionPoint[i] = basisVariableValue;
                 }
             }
 
