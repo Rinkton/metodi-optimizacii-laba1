@@ -10,7 +10,7 @@ namespace MetOptLaba1
         public int ConstraintAmount;
         public string[] TargetStringTable = new string[1];
         public string[,] ConstraintStringTable = new string[1, 1];
-        public string[] BasisStringTable = new string[1];
+        public int[] Basis = new int[1];
         public int OptimizationProblem = 0;
         public int FractionType = 0;
         public int SolutionType = 0;
@@ -33,7 +33,7 @@ namespace MetOptLaba1
             instance = inst;
         }
 
-        public void UpdateTables()
+        public void UpdateTables(bool updateBasis)
         {
             if (TargetStringTable.Length != VariableAmount + 1) {
                 TargetStringTable = new string[VariableAmount + 1];
@@ -46,8 +46,8 @@ namespace MetOptLaba1
             {
                 ConstraintStringTable = new string[ConstraintAmount, VariableAmount + 1];
             }
-            if(BasisStringTable.Length != VariableAmount) {
-                BasisStringTable = new string[VariableAmount];
+            if(updateBasis) {
+                Basis = new int[VariableAmount];
             }
         }
     }

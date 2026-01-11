@@ -51,7 +51,7 @@ namespace MetOptLaba1
             try {
                 SetupObj.GetInstance().VariableAmount = int.Parse(variableAmount.Text);
                 SetupObj.GetInstance().ConstraintAmount = int.Parse(constraintAmount.Text);
-                SetupObj.GetInstance().UpdateTables();
+                SetupObj.GetInstance().UpdateTables(basisUi.Children.Count != SetupObj.GetInstance().VariableAmount);
                 int columnCount = SetupObj.GetInstance().VariableAmount;
                 int rowCount = SetupObj.GetInstance().ConstraintAmount;
                 updateTargetTable(columnCount);
@@ -65,21 +65,12 @@ namespace MetOptLaba1
 
         private void updateBasisTable(int variableAmount)
         {
-            DataTable dt = new DataTable();
-
-            for(int i = 0; i < variableAmount; i++) {
-                dt.Columns.Add($"x{i+1}", typeof(string));
+            basisUi.Children.Clear();
+            for (int i = 0; i < variableAmount; i++) {
+                CheckBox checkBox = new CheckBox();
+                checkBox.Content = " - x" + (i+1).ToString();
+                basisUi.Children.Add(checkBox);
             }
-
-
-            var row = dt.NewRow();
-            for(int i = 0; i < variableAmount; i++) {
-                row[$"x{i + 1}"] = SetupObj.GetInstance().BasisStringTable[i];
-            }
-            dt.Rows.Add(row);
-
-            basisGrid.ItemsSource = dt.DefaultView;
-            basisGrid.AutoGenerateColumns = true;
         }
 
         private void updateTargetTable(int columnCount)
@@ -223,7 +214,7 @@ namespace MetOptLaba1
             updateStringTables();
             string[,] targetString2DContentTable = getDataGridContentTable(targetGrid);
             string[,] constraintStringContentTable = getDataGridContentTable(constraintGrid);
-            string[,] basisString2DContentTable = getDataGridContentTable(basisGrid);
+            int[] basis = getBasisFromUi();
             try {
                 if(SetupObj.GetInstance().VariableAmount == 0 ||
                     SetupObj.GetInstance().ConstraintAmount == 0) {
@@ -242,7 +233,7 @@ namespace MetOptLaba1
                 SimplexTableContentFormer simplexTableContentFormer = new SimplexTableContentFormer();
 
                 (Fraction[,] constraints, Fraction[] x0) = getConstraintsAndX0(
-                    constraintStringContentTable, basisString2DContentTable, 
+                    constraintStringContentTable, basis, 
                     simplexTableContentFormer);
                 
                 // Сохраняем цел ф и ограничения перед тем, как добавить
@@ -274,6 +265,11 @@ namespace MetOptLaba1
             catch(UserException exception) {
                 UserError.Show(exception.Message);
             }
+        }
+
+        private int[] getBasisFromUi()
+        {
+            throw new NotImplementedException();
         }
 
         private void multiplyByMinusOne(Fraction[] targetFractionContentTable)
@@ -327,7 +323,7 @@ namespace MetOptLaba1
 
         private (Fraction[,] constraints, Fraction[] x0) getConstraintsAndX0(
             string[,] constraintStringContentTable, 
-            string[,] basisString2DContentTable,
+            int[] basis,
             SimplexTableContentFormer simplexTableContentFormer)
         {
             // НЕ ИСПОЛЬЗУЙ это в расчётах
@@ -341,10 +337,7 @@ namespace MetOptLaba1
             // Если базис заданный(в симплекс или графическом методах)
             if(solutionTypeComboBox.SelectedIndex == 1 || 
             solutionTypeComboBox.SelectedIndex == 2) {
-                Fraction[,] basisFraction2DContentTable =
-                    getFractionContentTable(basisString2DContentTable);
-                basisFractionContentTable =
-                    Utils.GetArray2DFirstRow(basisFraction2DContentTable);
+                throw new NotImplementedException("Вот тут делай получение x0 из базиса и в basisFractionContentTable его");
             }
 
             // НЕ ИСПОЛЬЗУЙ это в расчётах
@@ -621,8 +614,8 @@ namespace MetOptLaba1
             string[,] constraintStringContentTable = getDataGridContentTable(constraintGrid);
             SetupObj.GetInstance().ConstraintStringTable = constraintStringContentTable;
 
-            string[,] basisString2DContentTable = getDataGridContentTable(basisGrid);
-            SetupObj.GetInstance().BasisStringTable = Utils.GetArray2DFirstRow(basisString2DContentTable);
+            int[] basis = getBasisFromUi();
+            SetupObj.GetInstance().Basis = basis;
         }
 
         private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
