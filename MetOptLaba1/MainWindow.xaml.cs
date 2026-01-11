@@ -393,7 +393,7 @@ namespace MetOptLaba1
 
             Graph graph = new Graph();
             graphView.Model = graph.MyModel;
-            graph.PlotSimplexProblem(target, constraints);
+            graph.PlotSimplexProblem(target, constraints, basis, x0);
             string answer = graph.GetAnswer(target, fullDimensionTarget, constraints, x0);
             graphicsAnswer.Content = answer;
         }

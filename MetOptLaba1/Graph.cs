@@ -30,8 +30,14 @@ namespace MetOptLaba1
             feasibleRegionPoints = new List<DataPoint>();
         }
 
-        public void PlotSimplexProblem(Fraction[] target, Fraction[,] constraints)
+        public void PlotSimplexProblem(Fraction[] target, Fraction[,] constraints, int[] basis, Fraction[] x0)
         {
+            // Допустим 10 неважно, потом всё равно переназначим
+            updateAxises(10, x0);
+
+            MyModel.Axes.Add(xAxis);
+            MyModel.Axes.Add(yAxis);
+
             constraints = Utils.AddRowToArray2D(constraints, new Fraction[]
             {
                 new Fraction(-1, 1),
@@ -50,7 +56,7 @@ namespace MetOptLaba1
             var someRightPart = constraints[0, 2].ToDouble();
             // На 2 домножаем, чтобы оси были в 2 раза длиннее, чем нужно,
             // так удобней
-            updateAxises((someRightPart / someConstraintMin) * 2);
+            updateAxises((someRightPart / someConstraintMin) * 2, x0);
 
             clearPlot();
 
@@ -75,12 +81,7 @@ namespace MetOptLaba1
             Fraction[,] constraints, Fraction[] x0)
         {
             int[] basis = SimplexTableContentFormer.X0toBasis(x0);
-            List<int> antiBasis = new List<int>();
-            for (int i = 0; i < x0.Length; i++) {
-                if(x0[i].Numerator == 0) {
-                    antiBasis.Add(i);
-                }
-            }
+            List<int> antiBasis = getAntiBasis(x0);
             bool isThereBasis = basis.Length ==
                 SetupObj.GetInstance().ConstraintAmount;
             if (Fraction2DPoints.Count == 0) {
@@ -116,6 +117,17 @@ namespace MetOptLaba1
             }
 
             return formAnswer(fullDimensionTarget, bestFullDimensionPoint);
+        }
+
+        private List<int> getAntiBasis(Fraction[] x0)
+        {
+            List<int> antiBasis = new List<int>();
+            for(int i = 0; i < x0.Length; i++) {
+                if(x0[i].Numerator == 0) {
+                    antiBasis.Add(i);
+                }
+            }
+            return antiBasis;
         }
 
         private Fraction getBasisVariableValue(Fraction[] constraint, 
@@ -159,12 +171,6 @@ namespace MetOptLaba1
                 Background = OxyColors.White,
                 PlotAreaBackground = OxyColors.WhiteSmoke
             };
-
-            // Допустим 10 неважно, потом всё равно переназначим
-            updateAxises(10);
-
-            MyModel.Axes.Add(xAxis);
-            MyModel.Axes.Add(yAxis);
         }
 
         private void clearPlot()
@@ -174,12 +180,13 @@ namespace MetOptLaba1
             feasibleRegionPoints.Clear();
         }
 
-        private void updateAxises(double max)
+        private void updateAxises(double max, Fraction[] x0)
         {
+            List<int> antiBasis = getAntiBasis(x0);
             xAxis = new LinearAxis
             {
                 Position = AxisPosition.Bottom,
-                Title = "x1",
+                Title = "x" + (antiBasis[0] + 1).ToString(),
                 Minimum = 0,
                 Maximum = max,
                 // Сеточка
@@ -192,7 +199,7 @@ namespace MetOptLaba1
             yAxis = new LinearAxis
             {
                 Position = AxisPosition.Left,
-                Title = "x2",
+                Title = "x" + (antiBasis[1] + 1).ToString(),
                 Minimum = 0,
                 Maximum = max,
                 MajorGridlineStyle = LineStyle.Solid,
