@@ -60,7 +60,7 @@ namespace MetOptLaba1
 
             clearPlot();
 
-            calculateFeasibleRegion(constraints);
+            calculateFeasibleRegion(target, constraints);
 
             plotConstraints(constraints);
 
@@ -89,16 +89,7 @@ namespace MetOptLaba1
             }
             Fraction[] bestFullDimensionPoint = new Fraction[
                 2 + (isThereBasis ? constraints.GetLength(0) : 0)];
-            Fraction fractionMinValue = Fraction.GetZero();
-            Fraction2DPoint? bestFraction2DPoint = null;
-            foreach (var fraction2DPoint in Fraction2DPoints) {
-                Fraction targetValue = target[0] * fraction2DPoint.X +
-                    target[1] * fraction2DPoint.Y + target[2];
-                if(bestFraction2DPoint == null || targetValue < fractionMinValue) {
-                    fractionMinValue = targetValue;
-                    bestFraction2DPoint = fraction2DPoint;
-                }
-            }
+            Fraction2DPoint? bestFraction2DPoint = getBestFraction2DPoint(target);
             bestFullDimensionPoint[antiBasis[0]] = bestFraction2DPoint.X;
             bestFullDimensionPoint[antiBasis[1]] = bestFraction2DPoint.Y;
             int skipped = 0;
@@ -117,6 +108,21 @@ namespace MetOptLaba1
             }
 
             return formAnswer(fullDimensionTarget, bestFullDimensionPoint);
+        }
+
+        private Fraction2DPoint? getBestFraction2DPoint(Fraction[] target)
+        {
+            Fraction fractionMinValue = Fraction.GetZero();
+            Fraction2DPoint? bestFraction2DPoint = null;
+            foreach(var fraction2DPoint in Fraction2DPoints) {
+                Fraction targetValue = target[0] * fraction2DPoint.X +
+                    target[1] * fraction2DPoint.Y + target[2];
+                if(bestFraction2DPoint == null || targetValue < fractionMinValue) {
+                    fractionMinValue = targetValue;
+                    bestFraction2DPoint = fraction2DPoint;
+                }
+            }
+            return bestFraction2DPoint;
         }
 
         private List<int> getAntiBasis(Fraction[] x0)
@@ -247,7 +253,8 @@ namespace MetOptLaba1
             }
         }
 
-        private void calculateFeasibleRegion(Fraction[,] constraints)
+        private void calculateFeasibleRegion(Fraction[] target, 
+        Fraction[,] constraints)
         {
             var axesIntersections = new List<DataPoint>();
             var intersectionPoints = new List<DataPoint>();
@@ -321,6 +328,23 @@ namespace MetOptLaba1
                 if (SimplexTableContentFormer.AreConstraintsRightWithPoint(constraints, new Fraction[] { x, y }, true)) {
                     Fraction2DPoints.Add(new Fraction2DPoint(x, y));
                 }
+            }
+
+            Fraction2DPoint? bestFraction2DPoint = getBestFraction2DPoint(target);
+            if (bestFraction2DPoint != null) {
+                var bestSeries = new ScatterSeries
+                {
+                    Title = "Оптимум",
+                    MarkerType = MarkerType.Circle,
+                    MarkerSize = 12,
+                    MarkerFill = OxyColors.Gold,
+                    MarkerStroke = OxyColors.DarkRed,
+                    MarkerStrokeThickness = 1
+                };
+                bestSeries.Points.Add(new ScatterPoint(
+                    bestFraction2DPoint.X.ToDouble(), 
+                    bestFraction2DPoint.Y.ToDouble()));
+                MyModel.Series.Add(bestSeries);
             }
 
             // Отсортируем их с помощью центроида

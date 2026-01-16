@@ -132,6 +132,12 @@
                                 </BulletDecorator.Bullet>
                                 <TextBlock Text="Градиент-вектор" VerticalAlignment="Center"/>
                             </BulletDecorator>
+                            <BulletDecorator Margin="5,20,0,0">
+                                <BulletDecorator.Bullet>
+                                    <Rectangle Width="16" Height="16" Fill="Gold" Margin="0,0,8,0"/>
+                                </BulletDecorator.Bullet>
+                                <TextBlock Text="Оптимум" VerticalAlignment="Center"/>
+                            </BulletDecorator>
                         </StackPanel>
                     </StackPanel>
                 </Grid>
