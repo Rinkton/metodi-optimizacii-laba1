@@ -517,7 +517,7 @@ namespace MetOptLaba1
                             newSimplexTable.FreeVariables, newSimplexTable.BasisVariables,
                             0,
                             simplexGrid,
-                            newSimplexTable.Target.Length - 1
+                            newSimplexTable.Target.Length - 1, newSimplexTable.GrandpaWasBad
                         );
                         simplexTable_MadeNewSimplexTable(notArtificialSimplexTable, null,
                             notArtificialSimplexTable.Grid);

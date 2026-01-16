@@ -33,19 +33,25 @@ namespace MetOptLaba1
         public Fraction[,] Content { get; private set; }
         public int[] FreeVariables { get; private set; }
         public int[] BasisVariables { get; private set; }
+        /// <summary>
+        /// Если у изначальной симплекс таблицы были отрицательные b-шки
+        /// </summary>
+        public bool GrandpaWasBad { get; private set; } = false;
 
         private List<AllowableElementData> allowableElementDatas = new List<AllowableElementData>();
 
         // Обычно вызывается после первого шага
         public SimplexTable(Fraction[] target, Fraction[,] constraints, 
             Fraction[,] content, int[] freeVariables, 
-            int[] basisVariables, int idx, StackPanel grid, int realVariablesCount)
+            int[] basisVariables, int idx, StackPanel grid, 
+            int realVariablesCount, bool grandpaWasBad)
         {
             Target = target;
             Constraints = constraints;
             this.Content = content;
             this.FreeVariables = freeVariables;
             this.BasisVariables = basisVariables;
+            this.GrandpaWasBad = grandpaWasBad;
             Idx = idx;
             Grid = grid;
             DataGrid = getDataGrid(idx);
@@ -78,6 +84,12 @@ namespace MetOptLaba1
             RealVariablesCount = realVariablesCount;
             DataGrid = getDataGrid(idx);
             DataGrid.Loaded += dataGrid_Loaded;
+            for (int i = 0; i < Content.GetLength(0)-1; i++) {
+                if(Content[i, Content.GetLength(1)-1].Numerator < 0) {
+                    GrandpaWasBad = true;
+                    break;
+                }
+            }
         }
 
         public void PaintCells(bool justAppeared)
@@ -249,7 +261,7 @@ namespace MetOptLaba1
             }
 
             return new SimplexTable(Target, Constraints, nextContent, nextFreeVariables, 
-                nextBasisVariables, Idx+1, Grid, RealVariablesCount);
+                nextBasisVariables, Idx+1, Grid, RealVariablesCount, GrandpaWasBad);
         }
 
         public static int[] RemoveElement(int[] array, int value)
@@ -444,6 +456,10 @@ namespace MetOptLaba1
             sb.Append((Fraction.GetZero() - Content
                 [Content.GetLength(0) - 1,
                 Content.GetLength(1) - 1]).ToString());
+            if (GrandpaWasBad) {
+                sb.Append('\n');
+                sb.Append("Замечание: b-шки отрицательны у переменных, базисное решение недопустимо");
+            }
 
             return sb.ToString();
         }
